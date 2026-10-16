@@ -1,8 +1,9 @@
 name: Update projects
 
 on:
-  schedule:
-    - cron: "17 5 * * 1"
+  # schedule disabled until vwesley.dev/projects.json lists the real projects (placeholders would shrink the README):
+  # schedule:
+  #   - cron: "17 5 * * 1"
   workflow_dispatch:
 
 permissions: {}
