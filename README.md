@@ -1,5 +1,7 @@
 # Vincent Wesley
 
+Provided as is, no warranty.
+
 Software engineer in Singapore.
 
 [vwesley.dev](https://vwesley.dev)
