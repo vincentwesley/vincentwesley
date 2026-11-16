@@ -2,7 +2,7 @@
   "name": "vincentwesley-profile",
   "private": true,
   "license": "MIT",
-  "author": "Vincent Wesley",
+  "author": "Vin, Vin's Atelier (https://vwesley.dev)",
   "repository": "github:vincentwesley/vincentwesley",
   "type": "module",
   "scripts": { "test": "node --test scripts/update-projects.test.mjs" }
