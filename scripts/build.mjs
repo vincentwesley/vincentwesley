@@ -227,6 +227,11 @@ async function main() {
 
   await renderArt(d); // committed code: a failure here is a bug, fail loudly
 
+  // Check every README marker before touching disk, so assets and README never go out of sync.
+  const md0 = readFileSync(resolve(ROOT, "README.md"), "utf8");
+  const missing = Object.keys(blocks(d)).filter((id) => replaceBlock(md0, id, "") == null);
+  if (missing.length) { console.log(`markers missing (${missing.join(", ")}); nothing written`); return; }
+
   let changed = 0;
   const write = (rel, data) => {
     const old = rd(rel), buf = Buffer.isBuffer(data) ? data : Buffer.from(data);
