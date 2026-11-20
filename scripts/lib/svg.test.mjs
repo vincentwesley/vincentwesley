@@ -1,6 +1,5 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import { esc, frame, fireflies, chip, button, svgDoc } from "./svg.mjs";
 import { measure } from "./fonts.mjs";
 

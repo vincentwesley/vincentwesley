@@ -1,13 +1,19 @@
 // Profile build: DevPulse + GitHub REST -> assets/*.svg + README GEN blocks.
-// Fail safe: any fetch/parse problem keeps every committed file as-is and exits 0.
+// Fail safe: any fetch/parse problem (network data only) keeps every committed file as-is and exits 0.
 // Deterministic: no timestamps; same inputs give identical bytes.
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { esc } from "./lib/svg.mjs";
-import { ROWS as STACK_ROWS } from "./art/stack.mjs";
-import { FEATURED, MORE, OWNER, PROFILE_REPO, NOT_ON_WORKBENCH } from "./projects.mjs";
+import { FEATURED, MORE, OWNER, PROFILE_REPO, NOT_ON_WORKBENCH, STACK_ROWS } from "./projects.mjs";
+import card from "./art/cards.mjs";
+import workbench from "./art/workbench.mjs";
+import header from "./art/header.mjs";
+import credits from "./art/credits.mjs";
+import jar from "./art/jar.mjs";
+import stack from "./art/stack.mjs";
+import { renderButtons } from "./art/buttons.mjs";
 
 const ROOT = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const DEVPULSE = "https://devpulse.vwesley.workers.dev";
@@ -86,7 +92,7 @@ export function footerText(projects) {
 const hash8 = (f) => createHash("sha256").update(readFileSync(f)).digest("hex").slice(0, 8);
 
 /** <picture> for assets/<name>-{dark,light}.svg with ?v= cache-busting; null if files are missing. */
-export function pic(name, alt, { height } = {}) {
+function pic(name, alt, { height } = {}) {
   const f = (t) => `assets/${name}-${t}.svg`;
   if (!["dark", "light"].every((t) => existsSync(resolve(ROOT, f(t))))) return null;
   const u = (t) => `${f(t)}?v=${hash8(resolve(ROOT, f(t)))}`;
@@ -156,39 +162,34 @@ async function collect(now) {
 }
 
 // ---------- build ----------
+const THEME_NAMES = ["dark", "light"];
 const WRITES = new Map(); // relative path -> string | Buffer
 const rd = (rel) => (existsSync(resolve(ROOT, rel)) ? readFileSync(resolve(ROOT, rel)) : null);
 function stage(rel, data) { WRITES.set(rel, data); }
 
 async function renderArt(d) {
-  const cards = (await import("./art/cards.mjs")).default;
-  const workbench = (await import("./art/workbench.mjs")).default;
   for (const f of FEATURED) {
     const p = d.by.get(f.name);
     const buf = d.shots.get(f.name) ?? readFileSync(resolve(ROOT, `assets/shots/${f.name}.webp`));
     if (d.shots.has(f.name)) stage(`assets/shots/${f.name}.webp`, buf);
-    for (const t of ["dark", "light"]) {
-      const svg = await cards(t, { title: f.title, line: f.line, chips: f.chips, up: p.up, uptime30d: p.uptime30d, shotHref: `data:image/webp;base64,${buf.toString("base64")}` });
+    const shotHref = `data:image/webp;base64,${buf.toString("base64")}`;
+    for (const t of THEME_NAMES) {
+      const svg = await card(t, { title: f.title, line: f.line, chips: f.chips, up: p.up, uptime30d: p.uptime30d, shotHref });
       if (Buffer.byteLength(svg) > 120 * 1024) throw new Error(`card ${f.name} over 120 KB`);
       stage(`assets/cards/${f.name}-${t}.svg`, svg);
     }
   }
-  for (const t of ["dark", "light"]) {
-    const svg = await workbench(t, { rows: d.rows, footer: footerText(d.projects) });
-    if (Buffer.byteLength(svg) > 40 * 1024) throw new Error("workbench over 40 KB");
-    stage(`assets/workbench-${t}.svg`, svg);
+  for (const t of THEME_NAMES) {
+    const files = {
+      workbench: await workbench(t, { rows: d.rows, footer: footerText(d.projects) }),
+      header: await header(t), credits: await credits(t), jar: await jar(t), stack: await stack(t),
+      ...Object.fromEntries(Object.entries(await renderButtons(t)).map(([n, svg]) => [`btn-${n}`, svg])),
+    };
+    for (const [name, svg] of Object.entries(files)) {
+      if (name === "workbench" && Buffer.byteLength(svg) > 40 * 1024) throw new Error("workbench over 40 KB");
+      stage(`assets/${name}-${t}.svg`, svg);
+    }
   }
-  // static art from the other modules: keep committed files when a module is missing or fails
-  for (const name of ["header", "credits", "jar", "stack"]) {
-    try {
-      const m = await import(`./art/${name}.mjs`);
-      for (const t of ["dark", "light"]) stage(`assets/${name}-${t}.svg`, await m.default(t));
-    } catch (e) { console.log(`art ${name}: ${e.code === "ERR_MODULE_NOT_FOUND" ? "missing" : e.message}; keeping committed files`); }
-  }
-  try {
-    const m = await import("./art/buttons.mjs");
-    for (const t of ["dark", "light"]) for (const [n, svg] of Object.entries(await m.renderButtons(t))) stage(`assets/btn-${n}-${t}.svg`, svg);
-  } catch (e) { console.log(`art buttons: ${e.code === "ERR_MODULE_NOT_FOUND" ? "missing" : e.message}; keeping committed files`); }
 }
 
 const linkOf = (p, repoUrl) => (p?.up && p.url ? p.url : repoUrl);
@@ -224,8 +225,7 @@ async function main() {
   try { d = await collect(Date.now()); }
   catch (e) { console.log(`build skipped (fail safe, committed files kept): ${e.message}`); return; }
 
-  try { await renderArt(d); }
-  catch (e) { console.log(`build skipped (render failed, committed files kept): ${e.message}`); return; }
+  await renderArt(d); // committed code: a failure here is a bug, fail loudly
 
   let changed = 0;
   const write = (rel, data) => {

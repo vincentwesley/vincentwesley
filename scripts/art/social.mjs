@@ -1,29 +1,23 @@
 // 1280x640 social-preview PNGs for the pinned repos. Run: node scripts/art/social.mjs [repo...]
 // Writes assets/social/<repo>.png (GitHub has no API for these; they are uploaded by hand).
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { writeFileSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
-import { chromium } from "playwright";
-import { THEMES, esc, frame, fireflies, chip, svgDoc, embedImage } from "../lib/svg.mjs";
+import { THEMES, esc, frame, fireflies, chip, svgDoc, embedImage, rect, wrapText } from "../lib/svg.mjs";
 import { measure } from "../lib/fonts.mjs";
-import { wrapText } from "./cards.mjs";
+import { FEATURED, MORE } from "../projects.mjs";
+import { abs, browse } from "../lib/preview.mjs";
 
-const root = fileURLToPath(new URL("../../", import.meta.url));
 const W = 1280, H = 640, c = THEMES.dark;
 const COLX = 64, COLW = 480, FX = 584, FY = 128, FW = 664, FH = 384; // shot frame
-const SHOT = (r) => `${root}qa-output/${r}.webp`;
 
-const REPOS = {
-  "black-hole": { title: "Black Hole", line: "A black hole you can fly around in the browser. Every pixel is a traced ray of light.", chips: ["WebGL2", "GLSL", "Ray tracing"], shot: `${root}assets/shots/black-hole.webp` },
-  "sdf-forge": { title: "SDF Forge", line: "Build 3D shapes in the browser by connecting nodes, then 3D-print them.", chips: ["React", "WebGL", "3D printing"], shot: `${root}assets/shots/sdf-forge.webp` },
-  MetaLensVGC: { title: "MetaLens VGC", line: "A metagame dashboard for Pokémon Champions VGC, built from real tournament data.", chips: ["Dashboard", "Cross-filter", "VGC 2026"], shot: "C:/Coding Projects/portfolio/src/assets/work/metalens-vgc-cover.webp", note: "Fan project, not affiliated with Nintendo, Game Freak or The Pokémon Company." },
-  "safe-regex": { title: "safe-regex", line: "A JavaScript-compatible regex engine that runs in linear time, so ReDoS can't happen.", chips: ["TypeScript", "Zero deps", "Linear time"], shot: `${root}assets/shots/safe-regex.webp` },
-  "glass-compiler": { title: "Glass Compiler", line: "A compiler you can see through: tokens, syntax tree, bytecode and a stepping VM, all linked.", chips: ["Compiler", "VM", "TypeScript"], shot: SHOT("glass-compiler") },
-  "sg-time-machine": { title: "SG Time Machine", line: "A growing archive of Singapore's live open-data feeds, browsable on a time-slider map.", chips: ["Open data", "MapLibre", "Singapore"], shot: SHOT("sg-time-machine") },
-};
+// Social copy lives next to the project copy (projects.mjs); only projects with a `social` field get a PNG.
+const REPOS = Object.fromEntries([...FEATURED, ...MORE].filter((p) => p.social).map((p) => [p.name, {
+  title: p.title, line: p.social.line, chips: p.social.chips, note: p.note,
+  shot: abs(p.shotFile ?? (FEATURED.includes(p) ? `assets/shots/${p.name}.webp` : `qa-output/${p.name}.webp`)),
+}]));
 
-const rect = (x, y, w, h, fill, extra = "") => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}"${extra}/>`;
-const logo = embedImage(`${root}assets/brand/mark-b.svg`, "image/svg+xml");
+const logo = embedImage(abs("assets/brand/mark-b.svg"), "image/svg+xml");
 
 async function render(repo, d) {
   const T = { family: "Space Grotesk", weight: 700 };
@@ -62,19 +56,23 @@ async function render(repo, d) {
   return svgDoc({ w: W, h: H, id: "so", title: d.title, desc: d.line, defs, css, body });
 }
 
-const only = process.argv.slice(2);
-mkdirSync(`${root}assets/social`, { recursive: true });
-const browser = await chromium.launch();
-const page = await browser.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 1, reducedMotion: "reduce" });
-for (const [repo, d] of Object.entries(REPOS)) {
-  if (only.length && !only.includes(repo)) continue;
-  const svg = await render(repo, d);
-  writeFileSync(`${root}qa-output/social-${repo}.svg`, svg);
-  await page.setContent(`<body style="margin:0;background:#11150e"><img width="${W}" height="${H}" style="display:block" src="data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}"></body>`);
-  await page.waitForFunction(() => document.images[0].complete);
-  const raw = await page.screenshot({ type: "png", clip: { x: 0, y: 0, width: W, height: H } });
-  const out = await sharp(raw).png({ palette: true, quality: 90, colours: 128, effort: 10 }).toBuffer();
-  writeFileSync(`${root}assets/social/${repo}.png`, out);
-  console.log(repo, out.length);
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const only = process.argv.slice(2);
+  mkdirSync(abs("assets/social"), { recursive: true });
+  mkdirSync(abs("qa-output"), { recursive: true });
+  await browse(async (browser) => {
+    const page = await browser.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 1, reducedMotion: "reduce" });
+    for (const [repo, d] of Object.entries(REPOS)) {
+      if (only.length && !only.includes(repo)) continue;
+      const svg = await render(repo, d);
+      writeFileSync(abs(`qa-output/social-${repo}.svg`), svg);
+      await page.setContent(`<body style="margin:0;background:#11150e"><img width="${W}" height="${H}" style="display:block" src="data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}"></body>`);
+      await page.waitForFunction(() => document.images[0].complete);
+      const raw = await page.screenshot({ type: "png", clip: { x: 0, y: 0, width: W, height: H } });
+      const out = await sharp(raw).png({ palette: true, quality: 90, colours: 128, effort: 10 }).toBuffer();
+      writeFileSync(abs(`assets/social/${repo}.png`), out);
+      console.log(repo, out.length);
+    }
+  });
 }
-await browser.close();
+

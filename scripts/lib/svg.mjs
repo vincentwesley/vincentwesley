@@ -27,7 +27,7 @@ export const THEMES = {
 };
 const T = (t) => (typeof t === "string" ? THEMES[t] : t);
 
-const rect = (x, y, w, h, fill, extra = "") => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}"${extra}/>`;
+export const rect = (x, y, w, h, fill, extra = "") => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}"${extra}/>`;
 
 /** House pixel frame: 2px ring outside the box, surface fill, 4px band, 2px hairline at 4-6px in, 12px studs. */
 export function frame({ x, y, w, h, t = "dark", color }) {
@@ -46,7 +46,7 @@ export function frame({ x, y, w, h, t = "dark", color }) {
 }
 
 // mulberry32: tiny seeded PRNG so output is deterministic
-function prng(seed) {
+export function prng(seed) {
   let a = seed >>> 0;
   return () => {
     a = (a + 0x6d2b79f5) >>> 0;
@@ -56,10 +56,13 @@ function prng(seed) {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
-const r2 = (n) => Math.round(n * 100) / 100;
+export const r2 = (n) => Math.round(n * 100) / 100;
 
-/** Deterministic drifting/blinking fireflies. Returns {defs, css, body}. `id` prefixes the shared filter/classes. */
-export function fireflies({ count = 12, w, h, seed = 1, t = "dark", id = "ff" }) {
+/**
+ * Deterministic drifting/blinking fireflies. Returns {defs, css, body}. `id` prefixes the shared filter/classes.
+ * `haloScale`: multiplier on the default halo (3x the core radius). `wrap(i, svg)`: per-firefly wrapper hook.
+ */
+export function fireflies({ count = 12, w, h, seed = 1, t = "dark", id = "ff", haloScale = 1, wrap = (_, s) => s }) {
   const c = T(t), rnd = prng(seed), pick = (a, b) => a + rnd() * (b - a);
   const css = [], dots = [];
   for (let i = 0; i < count; i++) {
@@ -70,11 +73,11 @@ export function fireflies({ count = 12, w, h, seed = 1, t = "dark", id = "ff" })
       `@keyframes ${id}d${i}{from{transform:translate(0,0)}to{transform:translate(${dx}px,${dy}px)}}` +
       `.${id}${i}{animation:${id}d${i} ${drift}s ease-in-out ${r2(-pick(0, drift))}s infinite alternate}`,
     );
-    dots.push(
+    dots.push(wrap(i,
       `<g class="${id}${i}"><g class="${id}b" style="animation-duration:${blink}s;animation-delay:${r2(-pick(0, blink))}s">` +
-      `<circle cx="${x}" cy="${y}" r="${r2(r * 3)}" fill="${c.firefly}" opacity=".55" filter="url(#${id}-glow)"/>` +
+      `<circle cx="${x}" cy="${y}" r="${r2(r2(r * 3) * haloScale)}" fill="${c.firefly}" opacity=".55" filter="url(#${id}-glow)"/>` +
       `<circle cx="${x}" cy="${y}" r="${r}" fill="${c.fireflyCore}"/></g></g>`,
-    );
+    ));
   }
   css.push(`@keyframes ${id}-blink{0%{opacity:.15}50%{opacity:1}100%{opacity:.3}}.${id}b{animation:${id}-blink 3s ease-in-out infinite alternate}`);
   return {
@@ -85,6 +88,22 @@ export function fireflies({ count = 12, w, h, seed = 1, t = "dark", id = "ff" })
 }
 
 const SILK = { family: "Silkscreen", weight: 400 };
+
+/** Greedy word wrap using real glyph advances; the last allowed line is ellipsised if text remains. */
+export async function wrapText(text, maxW, font, maxLines) {
+  const words = String(text).split(/\s+/).filter(Boolean), lines = [];
+  let cur = "";
+  for (let i = 0; i < words.length; i++) {
+    const next = cur ? `${cur} ${words[i]}` : words[i];
+    if (!cur || (await measure(next, { ...font })) <= maxW) { cur = next; continue; }
+    if (lines.length === maxLines - 1) { cur = [cur, ...words.slice(i)].join(" "); break; }
+    lines.push(cur); cur = words[i];
+  }
+  if (cur) lines.push(cur);
+  const last = lines.length - 1;
+  while (lines[last] && (await measure(lines[last], font)) > maxW) lines[last] = lines[last].slice(0, -2).trimEnd() + "…";
+  return lines;
+}
 
 /** Silkscreen uppercase chip with 2px four-sided offset ring. Returns {svg, w, h}. */
 export async function chip(text, { x = 0, y = 0, t = "dark", size = 12, color } = {}) {

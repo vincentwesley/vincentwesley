@@ -1,10 +1,7 @@
 // Pixel-art firefly jar. Fireflies leave through the ajar lid over a 7s loop; static = jar full of fireflies.
-import { writeFileSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { resolve } from "node:path";
-import { esc, THEMES, frame, svgDoc } from "../lib/svg.mjs";
+import { esc, THEMES, frame, svgDoc, rect } from "../lib/svg.mjs";
 
-const root = resolve(fileURLToPath(new URL("../..", import.meta.url)));
 const W = 480, H = 380, LOOP = 7;
 const TEXT = "Thanks for looking around.";
 // [x, y, leaves?] inside the glass (interior x 168..308, y 148..296)
@@ -14,7 +11,7 @@ const FLIES = [
 ];
 
 export default async function art_(t) {
-  const c = THEMES[t], r = (x, y, w, h, fill, o = "") => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}"${o}/>`;
+  const c = THEMES[t], r = rect;
   const css =
     `.f{animation:jf ${LOOP}s ease-in-out infinite}.g{animation:jb 2.6s ease-in-out infinite alternate}` +
     `@keyframes jf{0%{transform:translate(0,0);opacity:0}10%{opacity:1}45%{transform:translate(var(--mx),var(--my));opacity:1}100%{transform:translate(var(--ex),var(--ey));opacity:0}}` +
@@ -58,23 +55,6 @@ export default async function art_(t) {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const name = "jar", gen = art_;
-  const { chromium } = await import("playwright");
-  const qa = resolve(root, "qa-output");
-  mkdirSync(qa, { recursive: true }); mkdirSync(resolve(root, "assets"), { recursive: true });
-  for (const t of ["dark", "light"]) {
-    const s = await gen(t);
-    writeFileSync(resolve(root, `assets/${name}-${t}.svg`), s);
-    console.log(`${name}-${t}.svg ${Buffer.byteLength(s)} bytes`);
-  }
-  writeFileSync(resolve(qa, `${name}-preview.html`),
-    `<!doctype html><meta charset="utf-8"><body style="margin:0"><div style="background:#0d1117;padding:24px"><img src="../assets/${name}-dark.svg" style="width:480px"> <img src="../assets/${name}-dark.svg" style="width:343px"></div><div style="background:#fff;padding:24px"><img src="../assets/${name}-light.svg" style="width:480px"> <img src="../assets/${name}-light.svg" style="width:343px"></div>`);
-  const b = await chromium.launch();
-  for (const [label, reducedMotion] of [["default", "no-preference"], ["reduced", "reduce"]]) {
-    const p = await (await b.newContext({ viewport: { width: 1000, height: 800 }, reducedMotion })).newPage();
-    await p.goto("file:///" + resolve(qa, `${name}-preview.html`).replace(/\\/g, "/"));
-    await p.waitForTimeout(1500);
-    await p.screenshot({ path: resolve(qa, `${name}-${label}.png`), fullPage: true });
-  }
-  await b.close();
+  const { sheet } = await import("../lib/preview.mjs");
+  await sheet("jar", art_, { width: 480, vw: 1000 });
 }

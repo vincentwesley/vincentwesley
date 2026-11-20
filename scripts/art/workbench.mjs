@@ -1,24 +1,14 @@
 // "On the workbench" panel (840 wide so text stays legible at phone width): the latest commits on the most recently pushed public repos.
-import { THEMES, esc, frame, svgDoc } from "../lib/svg.mjs";
-import { measure } from "../lib/fonts.mjs";
-import { wrapText } from "./cards.mjs";
+import { THEMES, esc, frame, svgDoc, rect as px, wrapText } from "../lib/svg.mjs";
 
 const W = 840, X = 32, RIGHT = W - 32;
-const px = (x, y, w, h, fill, extra = "") => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}"${extra}/>`;
 const SUBJ = { family: "Inter", weight: 400, size: 28 };
 const FOOT = { family: "Inter", weight: 400, size: 24 };
-
-async function fit(text, maxW, font) {
-  let s = String(text);
-  if ((await measure(s, font)) <= maxW) return s;
-  while (s.length > 1 && (await measure(s + "…", font)) > maxW) s = s.slice(0, -1);
-  return s.trimEnd() + "…";
-}
 
 /** data: {rows: [{repo, week, subject}], footer} */
 export default async function workbench(t, data) {
   const c = THEMES[t], rows = data.rows.slice(0, 3);
-  const subjects = await Promise.all(rows.map((r) => fit(r.subject, RIGHT - X, SUBJ)));
+  const subjects = await Promise.all(rows.map(async (r) => (await wrapText(r.subject, RIGHT - X, SUBJ, 1))[0]));
   const foot = await wrapText(data.footer, RIGHT - X, FOOT, 2);
   const divY = 64 + rows.length * 96 - 20, footY = divY + 40, H = footY + (foot.length - 1) * 32 + 36;
   const defs =

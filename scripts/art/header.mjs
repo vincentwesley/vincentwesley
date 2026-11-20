@@ -1,8 +1,7 @@
 // Animated studio header ("the atelier at night"). Static styles are the FINAL state;
 // every entrance uses animation-fill-mode:both, so reduced-motion / Safari fallbacks look finished.
-import { mkdirSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { THEMES, esc, frame, fireflies, svgDoc, embedImage } from "../lib/svg.mjs";
+import { THEMES, esc, frame, fireflies, svgDoc, embedImage, prng, r2 as r, rect as px } from "../lib/svg.mjs";
 import { measure } from "../lib/fonts.mjs";
 
 const W = 960, H = 400, X = 64;
@@ -10,19 +9,6 @@ const TITLE = "Vin’s Atelier", TAG = "A one-person software studio in Singapor
 const PROMPT = "vin@sg:~$", CMD = "ls ~/atelier";
 const OUT = "black-hole  sdf-forge  metalens-vgc  safe-regex  …";
 const INK = { x: 10, y: 10, w: 940, h: 380 }; // inside the frame hairline
-const r = (n) => Math.round(n * 100) / 100;
-
-function rng(seed) { // mulberry32, deterministic
-  let a = seed >>> 0;
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-const px = (x, y, w, h, fill, extra = "") => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}"${extra}/>`;
 
 const BASE = INK.y + INK.h;
 const clearOfStud = (x) => x >= 16 && x + 8 <= W - 16; // bottom studs sit at x 4..16 and W-16..W-4
@@ -40,7 +26,7 @@ function hills(c) {
 
 // near grass + reeds, denser and taller; kept low under the terminal text (x < 690)
 function grass(c) {
-  const rnd = rng(11), out = [], blooms = [];
+  const rnd = prng(11), out = [], blooms = [];
   const bloomCols = [c.accent, c.peach, c.lavender], cols = INK.w / 8;
   let bi = 0;
   for (let i = 0; i < cols; i++) {
@@ -81,7 +67,7 @@ function cabin(c0, dark) {
 }
 
 function stars() {
-  const rnd = rng(23), out = [];
+  const rnd = prng(23), out = [];
   while (out.length < 13) {
     const x = Math.round(300 + rnd() * 640), y = Math.round(16 + rnd() * 150);
     if (Math.hypot(x - 866, y - 78) < 80) continue;
@@ -122,11 +108,10 @@ export default async function header(t = "dark") {
 
   let ffCss = "", ffBody = "", n = 0;
   for (const [count, seed, id, gx, gy, gw, gh] of GROUPS) {
-    const f = fireflies({ count, w: gw, h: gh, seed, t, id });
+    const wrap = (_, s) => `<g class="fin" style="animation-delay:${r(3.1 + 0.15 * n++)}s">${s}</g>`;
+    const f = fireflies({ count, w: gw, h: gh, seed, t, id, haloScale: 1.3, wrap });
     defs.push(f.defs); ffCss += f.css;
-    f.body = f.body.replace(/r="([\d.]+)"( fill="[^"]+" opacity="\.55")/g, (_, v, rest) => `r="${r(v * 1.3)}"${rest}`); // bigger halos
-    const parts = f.body.split(new RegExp(`(?=<g class="${id}\\d+">)`)).filter(Boolean);
-    ffBody += `<g transform="translate(${gx} ${gy})">` + parts.map((p) => `<g class="fin" style="animation-delay:${r(3.1 + 0.15 * n++)}s">${p}</g>`).join("") + `</g>`;
+    ffBody += `<g transform="translate(${gx} ${gy})">${f.body}</g>`;
   }
 
   const css = ffCss + `
@@ -161,25 +146,6 @@ export default async function header(t = "dark") {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  mkdirSync("assets", { recursive: true }); mkdirSync("qa-output", { recursive: true });
-  for (const t of ["dark", "light"]) {
-    const svg = await header(t);
-    writeFileSync(`assets/header-${t}.svg`, svg);
-    console.log(`header-${t}.svg`, Buffer.byteLength(svg), "bytes");
-  }
-  const cell = (t, bg) => `<div style="background:${bg};padding:16px"><img src="../assets/header-${t}.svg" width="960"><br><img src="../assets/header-${t}.svg" width="343"></div>`;
-  writeFileSync("qa-output/header-preview.html", `<body style="margin:0">${cell("dark", "#0d1117")}${cell("light", "#ffffff")}`);
-  const { chromium } = await import("playwright");
-  const br = await chromium.launch();
-  const page = await br.newPage({ viewport: { width: 992, height: 1000 } });
-  const url = "file:///" + process.cwd().replace(/\\/g, "/") + "/qa-output/header-preview.html";
-  const shot = async (name, el) => (el ? page.locator(el) : page).screenshot({ path: `qa-output/${name}.png` });
-  await page.goto(url); await page.waitForTimeout(6500);
-  await page.locator("div").nth(0).screenshot({ path: "qa-output/header-dark.png" });
-  await page.locator("div").nth(1).screenshot({ path: "qa-output/header-light.png" });
-  // Chromium doesn't propagate reducedMotion emulation into <img> SVG documents, so load the SVG top-level.
-  const rp = await (await br.newContext({ viewport: { width: W, height: H }, reducedMotion: "reduce" })).newPage();
-  await rp.goto(url.replace("qa-output/header-preview.html", "assets/header-dark.svg")); await rp.waitForTimeout(300);
-  await rp.screenshot({ path: "qa-output/header-reduced.png" });
-  await br.close();
+  const { sheet } = await import("../lib/preview.mjs");
+  await sheet("header", header, { width: 960, vw: 992, wait: 6500 });
 }

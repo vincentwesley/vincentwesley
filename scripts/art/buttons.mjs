@@ -2,7 +2,6 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { button, svgDoc, THEMES } from "../lib/svg.mjs";
-import { shoot } from "./stack.mjs";
 
 const LABELS = { site: "vwesley.dev", health: "Project health" };
 const PAD = 4;
@@ -36,5 +35,6 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     }
     console.log(t, "contrast", contrast(THEMES[t].accentFg, THEMES[t].accent).toFixed(2));
   }
+  const { shoot } = await import("../lib/preview.mjs");
   await shoot(names, 300);
 }

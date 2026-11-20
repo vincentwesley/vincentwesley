@@ -6,10 +6,10 @@ import * as hb from "harfbuzzjs"; // transitive dep of subset-font (hoisted)
 
 const dir = fileURLToPath(new URL("../fonts/", import.meta.url));
 export const FONTS = {
-  "Space Grotesk": { file: "space-grotesk-latin-wght-normal.woff2", weights: [700] },
-  Inter: { file: "inter-latin-wght-normal.woff2", weights: [400, 600] },
-  Silkscreen: { file: "silkscreen-latin-400-normal.woff2", weights: [400] }, // static font
-  "JetBrains Mono": { file: "jetbrains-mono-latin-wght-normal.woff2", weights: [500] },
+  "Space Grotesk": { file: "space-grotesk-latin-wght-normal.woff2" },
+  Inter: { file: "inter-latin-wght-normal.woff2" },
+  Silkscreen: { file: "silkscreen-latin-400-normal.woff2" }, // static font
+  "JetBrains Mono": { file: "jetbrains-mono-latin-wght-normal.woff2" },
 };
 
 const srcCache = new Map();

@@ -1,29 +1,11 @@
 // One featured-project card (960x320): screenshot left, title / line / chips / live status right.
 // Static styles are the final state; the only motion is a slow 2.4s glow pulse on the status dot.
-import { THEMES, esc, frame, chip, svgDoc } from "../lib/svg.mjs";
-import { measure } from "../lib/fonts.mjs";
+import { THEMES, esc, frame, chip, svgDoc, rect as px, wrapText } from "../lib/svg.mjs";
 
 const W = 960, H = 320, COLX = 496, COLW = 436;
-const px = (x, y, w, h, fill, extra = "") => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}"${extra}/>`;
 const LINE = { family: "Inter", weight: 400, size: 28 };
 
-/** Greedy word wrap using real glyph advances; the last allowed line is ellipsised if text remains. */
-export async function wrapText(text, maxW, font, maxLines) {
-  const words = String(text).split(/\s+/).filter(Boolean), lines = [];
-  let cur = "";
-  for (let i = 0; i < words.length; i++) {
-    const next = cur ? `${cur} ${words[i]}` : words[i];
-    if (!cur || (await measure(next, { ...font })) <= maxW) { cur = next; continue; }
-    if (lines.length === maxLines - 1) { cur = [cur, ...words.slice(i)].join(" "); break; }
-    lines.push(cur); cur = words[i];
-  }
-  if (cur) lines.push(cur);
-  const last = lines.length - 1;
-  while (lines[last] && (await measure(lines[last], font)) > maxW) lines[last] = lines[last].slice(0, -2).trimEnd() + "…";
-  return lines;
-}
-
-export const statusText = (d) =>
+const statusText = (d) =>
   d.up === true && Number.isFinite(d.uptime30d)
     ? `Live \u00b7 ${d.uptime30d >= 100 ? 100 : Math.round(d.uptime30d * 10) / 10}% uptime (30 days)`
     : "";
@@ -31,7 +13,7 @@ export const statusText = (d) =>
 /** data: {title, line, chips[], up, uptime30d, shotHref (data: URI)} */
 export default async function card(t, data) {
   const c = THEMES[t], status = statusText(data);
-  const lines = await wrapText(data.line, COLX + COLW - COLX, LINE, 2);
+  const lines = await wrapText(data.line, COLW, LINE, 2);
 
   // chips wrap onto a second row if needed
   let cx = 0, cy = 0, chipSvg = "";

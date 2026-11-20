@@ -1,15 +1,9 @@
 // "Tools I reach for" chip grid. Every chip is evidenced in a public repo (qa-output/stack-evidence.md).
-import { mkdirSync, writeFileSync } from "node:fs";
-import { chromium } from "playwright";
+import { writeFileSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { chip, esc, frame, svgDoc, THEMES } from "../lib/svg.mjs";
+import { STACK_ROWS as ROWS } from "../projects.mjs";
 
-
-export const ROWS = [
-  ["Languages", ["TypeScript", "JavaScript", "Python", "GLSL", "SQL"]],
-  ["In the browser", ["WebGL2", "Three.js", "Web Audio", "Web Workers", "Chrome extensions (MV3)"]],
-  ["Ship and run", ["Cloudflare Workers", "D1", "Vite", "GitHub Actions", "Playwright"]],
-];
 const W = 840, PAD = 32, LABEL = 30, SIZE = 24, GAP = 10, ROWGAP = 24; // 840 wide: text stays legible at phone width
 
 const render = async function (t) {
@@ -35,20 +29,6 @@ const render = async function (t) {
 };
 export default render;
 
-/** Headless screenshots of assets/<name>.svg via <img> on #0d1117 (…-dark) or #ffffff (…-light) -> qa-output/<name>.png */
-export async function shoot(names, width = 960) {
-  mkdirSync("qa-output", { recursive: true });
-  const b = await chromium.launch(), p = await b.newPage({ viewport: { width: width + 40, height: 400 } });
-  for (const n of names) {
-    const bg = n.endsWith("dark") ? "#0d1117" : "#ffffff";
-    const svg = "data:image/svg+xml;base64," + (await import("node:fs")).readFileSync(`assets/${n}.svg`).toString("base64");
-    await p.setContent(`<body style="margin:20px;background:${bg}"><img src="${svg}" style="display:block;width:${width}px">`);
-    await p.waitForTimeout(200);
-    await p.screenshot({ path: `qa-output/${n}.png`, fullPage: true });
-  }
-  await b.close();
-}
-
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   mkdirSync("assets", { recursive: true });
   const names = [];
@@ -57,5 +37,6 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     writeFileSync(`assets/stack-${t}.svg`, svg); names.push(`stack-${t}`);
     console.log(t, Buffer.byteLength(svg));
   }
+  const { shoot } = await import("../lib/preview.mjs");
   await shoot(names);
 }
