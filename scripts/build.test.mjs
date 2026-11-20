@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mdEsc, safeUrl, replaceBlock, parseProjects, pickNow } from "./build.mjs";
+import { mdEsc, safeUrl, replaceBlock, parseProjects, pickNow, isShown, linkOf } from "./build.mjs";
+import { PROJECTS, MORE } from "./projects.mjs";
 import intro from "./art/intro.mjs";
 import tile from "./art/tile.mjs";
 
@@ -55,12 +56,24 @@ test("intro renders in both themes with outlined text, deterministically", async
 test("tile renders in both themes with outlined text and escapes junk", async () => {
   const shotHref = "data:image/webp;base64,AAAA";
   for (const t of ["dark", "light"]) {
-    const svg = await tile(t, { title: "<script>alert(1)</script> & \"x\"", tag: "A tagline", up: true, shotHref });
+    const svg = await tile(t, { title: "<script>alert(1)</script> & \"x\"", tag: "A tagline", shotHref });
     assert.ok(!/<text\b/.test(svg) && !svg.includes("@font-face") && !svg.includes("<script"), `${t}: text not outlined or junk unescaped`);
     assert.ok((svg.match(/<use href="#/g) || []).length >= 10, `${t}: too few glyph <use>s`);
     assert.equal((svg.match(/class="stud"/g) || []).length, 6);
-    assert.equal(await tile(t, { title: "<script>alert(1)</script> & \"x\"", tag: "A tagline", up: true, shotHref }), svg);
+    assert.equal(await tile(t, { title: "<script>alert(1)</script> & \"x\"", tag: "A tagline", shotHref }), svg);
+    assert.ok(!svg.includes("Live") && !svg.includes("<circle"), `${t}: pill left`);
   }
+});
+
+test("gallery: site tile first, 6 tiles, shown without DevPulse, links to the site, no repo", () => {
+  assert.deepEqual(PROJECTS.map((p) => p.name), ["vwesley.dev", "black-hole", "sdf-forge", "MetaLensVGC", "safe-regex", "glass-compiler"]);
+  assert.equal(MORE[0].name, "sg-time-machine");
+  const site = PROJECTS[0], by = new Map(); // no DevPulse entry at all
+  assert.ok(isShown(by, site));
+  assert.ok(!isShown(by, PROJECTS[1]));
+  assert.equal(linkOf(by, site), "https://vwesley.dev");
+  assert.equal(`${site.title}: ${site.line}`, "vwesley.dev: my portfolio site, with every project, my résumé and how to reach me");
+  assert.ok(!JSON.stringify(site).includes("github.com"));
 });
 
 test("pickNow: most recent push wins; unlisted and archived repos are ignored", () => {

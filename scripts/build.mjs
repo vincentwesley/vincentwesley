@@ -94,7 +94,7 @@ async function collect() {
   for (const m of PROJECTS) {
     const file = resolve(ROOT, `assets/shots/${m.name}.webp`);
     try {
-      if (!by.has(m.name) || by.get(m.name).archived) throw new Error("not in DevPulse");
+      if (!isShown(by, m)) throw new Error("not in DevPulse");
       const p = by.get(m.name);
       if (m.shotFile) shots.set(m.name, await shotWebp(readFileSync(resolve(ROOT, m.shotFile)), m.focus));
       else if (p.shot) shots.set(m.name, await shotWebp(await shotFetch(p.shot), m.focus));
@@ -111,19 +111,22 @@ async function collect() {
 const rd = (rel) => (existsSync(resolve(ROOT, rel)) ? readFileSync(resolve(ROOT, rel)) : null);
 const repoUrl = (n) => `https://github.com/${OWNER}/${n}`;
 
-const linkOf = (by, n) => (by.get(n)?.up && by.get(n).url ? by.get(n).url : repoUrl(n));
+/** Shown unless DevPulse lacks it or it is archived; `site` entries (not in DevPulse) are always shown. */
+export const isShown = (by, m) => m.site === true || (by.has(m.name) && !by.get(m.name).archived);
+/** Site entries link to their own `link`; others to the live URL if up, else the repo. */
+export const linkOf = (by, m) => (m.site ? m.link : by.get(m.name)?.up && by.get(m.name).url ? by.get(m.name).url : repoUrl(m.name));
+const nbsp = (s) => s.replace(/ /g, "&nbsp;");
 
 function blocks(by) {
   const b = {};
   b.intro = pic("intro", "Hi, I’m Vin, a software engineer in Singapore. I make small, fast web apps that run in your browser. Vin’s Atelier.", "https://vwesley.dev");
-  const shown = PROJECTS.filter((m) => by.has(m.name) && !by.get(m.name).archived);
-  const tiles = shown.map((m) => pic(`tiles/${m.name}`, `${m.title}: ${m.line}`, linkOf(by, m.name), "49.3%")); // 2 x 49.3% + the joining space still fits one row at 375px, and sits ~4px inside the banner at 1280
+  const tiles = PROJECTS.filter((m) => isShown(by, m)).map((m) => pic(`tiles/${m.name}`, `${m.title}: ${m.line}`, linkOf(by, m), "49.3%")); // 2 x 49.3% + the joining space still fits one row at 375px, and sits ~4px inside the banner at 1280
   const now = pickNow(by, [...PROJECTS, ...MORE]);
-  b.now = now ? `**Now:** working on [${mdEsc(now.title)}](${linkOf(by, now.name)})${now.line ? `, ${now.line}` : ""}.` : null;
+  b.now = now ? `**Now:** working on [${mdEsc(now.title)}](${linkOf(by, now)})${now.line ? `, ${now.line}` : ""}.` : null;
   b.built = tiles.every(Boolean)
     ? Array.from({ length: Math.ceil(tiles.length / 2) }, (_, k) => `<p align="center">${tiles.slice(k * 2, k * 2 + 2).join(" ")}</p>`).join("\n\n")
     : null;
-  b.also = "Also: " + MORE.filter((m) => by.has(m.name) && !by.get(m.name).archived).map((m) => `[${mdEsc(m.title)}](${linkOf(by, m.name)})`).join(" · ");
+  b.also = "Also: " + MORE.filter((m) => by.has(m.name) && !by.get(m.name).archived).map((m) => `[${nbsp(mdEsc(m.title))}](${linkOf(by, m)})`).join(" · ");
   return b;
 }
 
@@ -135,11 +138,11 @@ async function main() {
   const writes = new Map(); // committed code: a render failure is a bug, fail loudly
   for (const t of ["dark", "light"]) writes.set(`assets/intro-${t}.svg`, await intro(t));
   for (const m of PROJECTS) {
-    if (!by.has(m.name) || by.get(m.name).archived) continue;
+    if (!isShown(by, m)) continue;
     const buf = shots.get(m.name) ?? readFileSync(resolve(ROOT, `assets/shots/${m.name}.webp`));
     if (shots.has(m.name)) writes.set(`assets/shots/${m.name}.webp`, buf);
     const shotHref = `data:image/webp;base64,${buf.toString("base64")}`;
-    for (const t of ["dark", "light"]) writes.set(`assets/tiles/${m.name}-${t}.svg`, await tile(t, { title: m.title, tag: m.tag, up: by.get(m.name).up, shotHref }));
+    for (const t of ["dark", "light"]) writes.set(`assets/tiles/${m.name}-${t}.svg`, await tile(t, { title: m.title, tag: m.tag, shotHref }));
   }
 
   // Check every README marker before touching disk, so assets and README never go out of sync.
