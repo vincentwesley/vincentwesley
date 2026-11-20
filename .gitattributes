@@ -1,0 +1,5 @@
+# LF everywhere: generated SVGs embed brand files, so bytes must match on every machine and in CI
+* text=auto eol=lf
+*.png binary
+*.webp binary
+*.woff2 binary
