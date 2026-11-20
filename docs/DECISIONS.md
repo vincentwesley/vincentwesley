@@ -64,3 +64,6 @@ The credits-card look now introduces Vin. Each featured card is a screenshot wit
 
 **P19. Minimal redesign (owner, 2026-11-20): the earlier card and panel layout felt busy. Now one calm banner, plain text and a link list; pins carry the visuals. Supersedes P9, P10 and P18 layout parts.**
 The README is the banner, one sentence, one h3 with eight links and a footer. Only DevPulse is fetched (live URL and up). The URL allow-list is exact hosts.
+
+**P20. Middle ground (owner, 2026-11-20): credits-card banner and a 6-tile screenshot gallery; P19 felt underwhelming.**
+Banner: header bar, dot grid, glow, frame, few fireflies (no logo; the bar names the studio). Gallery: `scripts/art/tile.mjs` (screenshot 16:9, title and tagline band, live dot), three rows of two, plus an "Also:" text line. Screenshots: DevPulse download (image/*, <3 MB) or `shotFile`, sharp-cropped to 800x450 webp in `assets/shots/` (kept if the download fails). Supersedes the P19 list; fail-safe, host allow-list and `?v=` hashes unchanged.

@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mdEsc, safeUrl, replaceBlock, parseProjects } from "./build.mjs";
 import intro from "./art/intro.mjs";
+import tile from "./art/tile.mjs";
 
 test("mdEsc escapes markdown metacharacters", () => {
   assert.equal(mdEsc("a[b](c)<d>`e`*f*_g_|h"), "a\\[b\\]\\(c\\)\\<d\\>\\`e\\`\\*f\\*\\_g\\_\\|h");
@@ -48,5 +49,16 @@ test("intro renders in both themes with outlined text, deterministically", async
     assert.ok(!svg.includes("@font-face"), `${t}: @font-face left`);
     assert.ok((svg.match(/<use href="#/g) || []).length >= 40, `${t}: too few glyph <use>s`);
     assert.equal(await intro(t), svg);
+  }
+});
+
+test("tile renders in both themes with outlined text and escapes junk", async () => {
+  const shotHref = "data:image/webp;base64,AAAA";
+  for (const t of ["dark", "light"]) {
+    const svg = await tile(t, { title: "<script>alert(1)</script> & \"x\"", tag: "A tagline", up: true, shotHref });
+    assert.ok(!/<text\b/.test(svg) && !svg.includes("@font-face") && !svg.includes("<script"), `${t}: text not outlined or junk unescaped`);
+    assert.ok((svg.match(/<use href="#/g) || []).length >= 10, `${t}: too few glyph <use>s`);
+    assert.equal((svg.match(/class="stud"/g) || []).length, 6);
+    assert.equal(await tile(t, { title: "<script>alert(1)</script> & \"x\"", tag: "A tagline", up: true, shotHref }), svg);
   }
 });
