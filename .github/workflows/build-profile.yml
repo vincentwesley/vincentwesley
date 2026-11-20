@@ -16,6 +16,7 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: write
+      actions: write
     concurrency:
       group: build-profile
       cancel-in-progress: false
@@ -39,8 +40,7 @@ jobs:
           git config user.email "221810966+vincentwesley@users.noreply.github.com"
           git commit -m "chore: refresh profile data [skip ci]"
           git push
-
-  keepalive:
-    permissions:
-      actions: write
-    uses: vincentwesley/house/.github/workflows/keepalive.yml@3b64644b1cad8e42d2b0411710ee7af5a460ab47
+      # Inline keepalive (a public repo can't call the private house repo's reusable workflow):
+      # stops GitHub disabling the weekly schedule after 60 days without commits.
+      - if: github.event_name == 'schedule'
+        uses: liskin/gh-workflow-keepalive@f72ff1a1336129f29bf0166c0fd0ca6cf1bcb38c # v1
