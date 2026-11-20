@@ -67,3 +67,6 @@ The README is the banner, one sentence, one h3 with eight links and a footer. On
 
 **P20. Middle ground (owner, 2026-11-20): credits-card banner and a 6-tile screenshot gallery; P19 felt underwhelming.**
 Banner: header bar, dot grid, glow, frame, few fireflies (no logo; the bar names the studio). Gallery: `scripts/art/tile.mjs` (screenshot 16:9, title and tagline band, live dot), three rows of two, plus an "Also:" text line. Screenshots: DevPulse download (image/*, <3 MB) or `shotFile`, sharp-cropped to 800x450 webp in `assets/shots/` (kept if the download fails). Supersedes the P19 list; fail-safe, host allow-list and `?v=` hashes unchanged.
+
+**P21. Design review (owner, 2026-11-20): navigation row, sharper intro, generated Now line, image-forward tiles with a Live pill, logo footer.**
+The "Now" line is the most recently pushed project among PROJECTS and MORE (`pickNow`). Tiles are 400x289 (64px band, 28px title, Live pill only when up). The "More on vwesley.dev" line was dropped because the nav row covers it.

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mdEsc, safeUrl, replaceBlock, parseProjects } from "./build.mjs";
+import { mdEsc, safeUrl, replaceBlock, parseProjects, pickNow } from "./build.mjs";
 import intro from "./art/intro.mjs";
 import tile from "./art/tile.mjs";
 
@@ -61,4 +61,19 @@ test("tile renders in both themes with outlined text and escapes junk", async ()
     assert.equal((svg.match(/class="stud"/g) || []).length, 6);
     assert.equal(await tile(t, { title: "<script>alert(1)</script> & \"x\"", tag: "A tagline", up: true, shotHref }), svg);
   }
+});
+
+test("pickNow: most recent push wins; unlisted and archived repos are ignored", () => {
+  const by = new Map(Object.entries({
+    a: { pushed: Date.parse("2026-11-18T00:00:00Z") },
+    b: { pushed: Date.parse("2026-11-19T00:00:00Z") },
+    old: { pushed: Date.parse("2026-11-01T00:00:00Z") },
+    arch: { pushed: Date.parse("2026-11-21T00:00:00Z"), archived: true },
+    "vincentwesley": { pushed: Date.parse("2026-11-22T00:00:00Z") },
+  }).map(([name, v]) => [name, { name, ...v }]));
+  assert.equal(pickNow(by, [{ name: "a" }, { name: "b" }, { name: "old" }, { name: "arch" }, { name: "missing" }]).name, "b");
+  assert.equal(pickNow(by, [{ name: "old" }, { name: "a" }]).name, "a");
+  assert.equal(pickNow(by, [{ name: "arch" }, { name: "missing" }]), null);
+  assert.equal(parseProjects([{ name: "x", repo: "vincentwesley/x", pushedAt: "2026-11-20T00:00:00Z" }])[0].pushed, Date.parse("2026-11-20T00:00:00Z"));
+  assert.equal(parseProjects([{ name: "x", repo: "vincentwesley/x", pushedAt: "junk" }])[0].pushed, 0);
 });

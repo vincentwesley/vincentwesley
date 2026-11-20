@@ -22,7 +22,7 @@ export const MORE = [
   { name: "synthwave-drive", title: "Synthwave Drive" },
   { name: "koi-pond", title: "Koi Pond" },
   { name: "llm-microscope", title: "LLM Microscope" },
-  { name: "devpulse", title: "DevPulse" },
+  { name: "devpulse", title: "DevPulse", line: "a live status board for all my projects" },
   { name: "tldr-panel", title: "TL;DR Panel" },
   { name: "clearslip", title: "Clearslip" },
 ];

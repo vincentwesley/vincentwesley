@@ -43,9 +43,20 @@ export function parseProjects(payload) {
   for (const p of payload) {
     if (!p || typeof p !== "object" || typeof p.name !== "string" || !NAME_RE.test(p.name)) continue;
     if (p.repo !== `${OWNER}/${p.name}`) continue;
-    out.push({ name: p.name, url: p.url ? safeUrl(p.url) : null, up: p.up === true, shot: typeof p.shot === "string" && SHOT_RE.test(p.shot) ? p.shot : null, archived: p.archived === true });
+    const pushed = Date.parse(p.pushedAt);
+    out.push({ name: p.name, url: p.url ? safeUrl(p.url) : null, up: p.up === true, shot: typeof p.shot === "string" && SHOT_RE.test(p.shot) ? p.shot : null, archived: p.archived === true, pushed: Number.isNaN(pushed) ? 0 : pushed });
   }
   return out.sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/** Most recently pushed, non-archived entry among the curated lists (ties: list order). Null if none. */
+export function pickNow(by, entries) {
+  let best = null;
+  for (const m of entries) {
+    const p = by.get(m.name);
+    if (p && !p.archived && p.pushed > 0 && (!best || p.pushed > by.get(best.name).pushed)) best = m;
+  }
+  return best;
 }
 
 const hash8 = (f) => createHash("sha256").update(readFileSync(f)).digest("hex").slice(0, 8);
@@ -106,7 +117,9 @@ function blocks(by) {
   const b = {};
   b.intro = pic("intro", "Hi, I’m Vin, a software engineer in Singapore. I make small, fast web apps that run in your browser. Vin’s Atelier.", "https://vwesley.dev");
   const shown = PROJECTS.filter((m) => by.has(m.name) && !by.get(m.name).archived);
-  const tiles = shown.map((m) => pic(`tiles/${m.name}`, `${m.title}: ${m.line}`, linkOf(by, m.name), "49%"));
+  const tiles = shown.map((m) => pic(`tiles/${m.name}`, `${m.title}: ${m.line}`, linkOf(by, m.name), "49.3%")); // 2 x 49.3% + the joining space still fits one row at 375px, and sits ~4px inside the banner at 1280
+  const now = pickNow(by, [...PROJECTS, ...MORE]);
+  b.now = now ? `**Now:** working on [${mdEsc(now.title)}](${linkOf(by, now.name)})${now.line ? `, ${now.line}` : ""}.` : null;
   b.built = tiles.every(Boolean)
     ? Array.from({ length: Math.ceil(tiles.length / 2) }, (_, k) => `<p align="center">${tiles.slice(k * 2, k * 2 + 2).join(" ")}</p>`).join("\n\n")
     : null;
