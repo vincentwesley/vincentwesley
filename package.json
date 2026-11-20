@@ -5,5 +5,16 @@
   "author": "Vin, Vin's Atelier (https://vwesley.dev)",
   "repository": "github:vincentwesley/vincentwesley",
   "type": "module",
-  "scripts": { "test": "node --test scripts/update-projects.test.mjs" }
+  "scripts": {
+    "test": "node --test",
+    "build": "node scripts/build.mjs",
+    "qa": "node scripts/qa.mjs"
+  },
+  "devDependencies": {
+    "github-markdown-css": "5.9.0",
+    "harfbuzzjs": "1.6.4",
+    "playwright": "1.65.1",
+    "sharp": "0.35.5",
+    "subset-font": "2.9.0"
+  }
 }

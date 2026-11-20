@@ -1,0 +1,13 @@
+﻿/* TEAM */
+Developer: Vin
+Studio: Vin's Atelier
+Site: https://vwesley.dev
+Location: Singapore
+
+/* THANKS */
+Logo: @portus_workstation / @wason25_pz (Portus Workstation)
+
+/* SITE */
+Standards: GitHub-flavoured Markdown, SVG
+Components: subset-font, sharp, Playwright
+Fonts: Space Grotesk, Inter, Silkscreen, JetBrains Mono (SIL OFL 1.1)

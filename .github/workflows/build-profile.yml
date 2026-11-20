@@ -1,0 +1,46 @@
+name: Build profile
+
+on:
+  schedule:
+    - cron: "17 5 * * 1"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["scripts/**", "package.json", "package-lock.json"]
+
+permissions: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    concurrency:
+      group: build-profile
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - run: npm test
+      - run: node scripts/build.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      # The bot commit only touches README/assets and carries [skip ci], so it can't retrigger the push path.
+      - name: Commit if README or assets changed
+        run: |
+          git add README.md assets
+          git diff --cached --quiet && exit 0
+          git config user.name "vincentwesley"
+          git config user.email "221810966+vincentwesley@users.noreply.github.com"
+          git commit -m "chore: refresh profile data [skip ci]"
+          git push
+
+  keepalive:
+    permissions:
+      actions: write
+    uses: vincentwesley/house/.github/workflows/keepalive.yml@3b64644b1cad8e42d2b0411710ee7af5a460ab47

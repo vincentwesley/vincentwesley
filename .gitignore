@@ -1,1 +1,7 @@
+﻿node_modules/
 qa-output/
+test-results/
+.env*
+!.env.example
+graphify-out/
+.claude/settings.local.json
