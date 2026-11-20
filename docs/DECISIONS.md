@@ -58,3 +58,9 @@ MetaLens is an engineering showcase (a data pipeline and a dashboard), so it sta
 
 **P14. Email.**
 The approved public address belongs to the personal side, so there's no email button. Contact goes through vwesley.dev.
+
+**P18. Redesign for clarity (owner feedback 2026-11-20): intro card replaces the header; simpler image-first project cards with text in markdown; workbench and jar collapsed; footer credits.**
+The credits-card look now introduces Vin. Each featured card is a screenshot with a title band and a Live pill, with the description and links as real text underneath. This supersedes the P9 card style (chips, copy and uptime inside the image); the P9 project choice stands.
+
+**P19. Minimal redesign (owner, 2026-11-20): the earlier card and panel layout felt busy. Now one calm banner, plain text and a link list; pins carry the visuals. Supersedes P9, P10 and P18 layout parts.**
+The README is the banner, one sentence, one h3 with eight links and a footer. Only DevPulse is fetched (live URL and up). The URL allow-list is exact hosts.

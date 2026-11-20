@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { esc, frame, fireflies, chip, button, svgDoc } from "./svg.mjs";
+import { esc, frame, fireflies, chip, svgDoc } from "./svg.mjs";
 import { measure } from "./fonts.mjs";
 
 test("esc escapes markup, quotes and control chars", () => {
@@ -37,13 +37,11 @@ test("svgDoc outlines text: no <text>, glyph <use>s, no @font-face, title/desc s
   assert.ok(!raw.includes("<script"));
 });
 
-test("measure, chip, button, reduced-motion kill switch", async () => {
+test("measure, chip, reduced-motion kill switch", async () => {
   const w1 = await measure("iii", { family: "Inter", size: 16 });
   const w2 = await measure("WWW", { family: "Inter", size: 16 });
   assert.ok(w2 > w1 && w1 > 0);
   const c = await chip("live", {});
   assert.ok(c.w > 20 && c.svg.includes("LIVE"));
-  const b = await button("<hi>", {});
-  assert.ok(b.svg.includes("&lt;hi&gt;"));
   assert.match(await svgDoc({ w: 1, h: 1, title: "<t>", body: "" }), /prefers-reduced-motion: reduce.*animation:none!important/);
 });

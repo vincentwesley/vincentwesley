@@ -1,25 +1,26 @@
 // 1280x640 social-preview PNGs for the pinned repos. Run: node scripts/art/social.mjs [repo...]
 // Writes assets/social/<repo>.png (GitHub has no API for these; they are uploaded by hand).
-import { writeFileSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 import { THEMES, esc, frame, fireflies, chip, svgDoc, embedImage, rect, wrapText } from "../lib/svg.mjs";
 import { measure } from "../lib/fonts.mjs";
-import { FEATURED, MORE } from "../projects.mjs";
+import { PROJECTS } from "../projects.mjs";
 import { abs, browse } from "../lib/preview.mjs";
 
 const W = 1280, H = 640, c = THEMES.dark;
 const COLX = 64, COLW = 480, FX = 584, FY = 128, FW = 664, FH = 384; // shot frame
 
 // Social copy lives next to the project copy (projects.mjs); only projects with a `social` field get a PNG.
-const REPOS = Object.fromEntries([...FEATURED, ...MORE].filter((p) => p.social).map((p) => [p.name, {
+const REPOS = Object.fromEntries(PROJECTS.filter((p) => p.social).map((p) => [p.name, {
   title: p.title, line: p.social.line, chips: p.social.chips, note: p.note,
-  shot: abs(p.shotFile ?? (FEATURED.includes(p) ? `assets/shots/${p.name}.webp` : `qa-output/${p.name}.webp`)),
+  shot: abs(p.shotFile ?? `qa-output/${p.name}.webp`),
 }]));
 
 const logo = embedImage(abs("assets/brand/mark-b.svg"), "image/svg+xml");
 
 async function render(repo, d) {
+  const shot = d.shot.includes("shots-src") ? await sharp(d.shot).resize({ width: 840, withoutEnlargement: true }).webp({ quality: 72 }).toBuffer() : readFileSync(d.shot);
   const T = { family: "Space Grotesk", weight: 700 };
   let ts = 64;
   while ((await measure(d.title, { ...T, size: ts })) > COLW) ts -= 2;
@@ -46,7 +47,7 @@ async function render(repo, d) {
     ff.body +
     [[4, 4], [W - 16, 4], [4, H - 16], [W - 16, H - 16]].map(([x, y]) => rect(x, y, 12, 12, c.borderStrong)).join("") +
     frame({ x: FX, y: FY, w: FW, h: FH }) +
-    `<image href="${embedImage(d.shot, "image/webp")}" x="${FX + 6}" y="${FY + 6}" width="${FW - 12}" height="${FH - 12}" preserveAspectRatio="xMidYMid slice" clip-path="url(#so-img)"/>` +
+    `<image href="data:image/webp;base64,${shot.toString("base64")}" x="${FX + 6}" y="${FY + 6}" width="${FW - 12}" height="${FH - 12}" preserveAspectRatio="xMidYMid slice" clip-path="url(#so-img)"/>` +
     `<text x="${COLX}" y="${titleY}" font-family="'Space Grotesk'" font-weight="700" font-size="${ts}" fill="${c.fg}">${esc(d.title)}</text>` +
     lines.map((l, i) => `<text x="${COLX}" y="${lineY0 + i * lineStep}" font-family="Inter" font-size="30" fill="${c.muted}">${esc(l)}</text>`).join("") +
     chipSvg +

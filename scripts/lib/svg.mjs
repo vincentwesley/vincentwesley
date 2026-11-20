@@ -30,16 +30,16 @@ const T = (t) => (typeof t === "string" ? THEMES[t] : t);
 export const rect = (x, y, w, h, fill, extra = "") => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${fill}"${extra}/>`;
 
 /** House pixel frame: 2px ring outside the box, surface fill, 4px band, 2px hairline at 4-6px in, 12px studs. */
-export function frame({ x, y, w, h, t = "dark", color }) {
+export function frame({ x, y, w, h, t = "dark", color, hairline = true }) {
   const c = T(t), ring = color ?? c.borderStrong, s = 12;
   return [
     rect(x - 2, y - 2, w + 4, h + 4, ring), // ring
     rect(x, y, w, h, c.surface), // fill (+ 4px band: the surface itself)
     // 2px inner hairline 4px..6px in, drawn as four bars
-    ...[
+    ...(hairline ? [
       [x + 4, y + 4, w - 8, 2], [x + 4, y + h - 6, w - 8, 2],
       [x + 4, y + 6, 2, h - 12], [x + w - 6, y + 6, 2, h - 12],
-    ].map(([a, b, cw, ch]) => rect(a, b, cw, ch, ring, ' opacity=".85"')),
+    ] : []).map(([a, b, cw, ch]) => rect(a, b, cw, ch, ring, ' opacity=".85"')),
     // corner studs
     ...[[x, y], [x + w - s, y], [x, y + h - s], [x + w - s, y + h - s]].map(([a, b]) => rect(a, b, s, s, ring, ' class="stud"')),
   ].join("");
@@ -115,17 +115,6 @@ export async function chip(text, { x = 0, y = 0, t = "dark", size = 12, color } 
     rect(0, 0, w, h, ring) + rect(2, 2, w - 4, h - 4, c.surface) + // 2px ring, all four sides
     `<text x="${padX}" y="${h / 2 + size * 0.35}" font-family="'Silkscreen'" font-size="${size}" letter-spacing="${ls}" fill="${c.fg}">${esc(label)}</text></g>`;
   return { svg, w, h };
-}
-
-/** Offset-shadow button: accent fill, accentFg text, 3px 3px peach shadow, square. Returns {svg, w, h}. */
-export async function button(label, { x = 0, y = 0, t = "dark", size = 16 } = {}) {
-  const c = T(t), padX = 20, h = size + 22;
-  const w = Math.ceil((await measure(label, { family: "Space Grotesk", weight: 700, size })) + padX * 2);
-  const svg =
-    `<g transform="translate(${x} ${y})">` +
-    rect(3, 3, w, h, c.peach) + rect(0, 0, w, h, c.accent) +
-    `<text x="${w / 2}" y="${h / 2 + size * 0.35}" text-anchor="middle" font-family="'Space Grotesk'" font-weight="700" font-size="${size}" fill="${c.accentFg}">${esc(label)}</text></g>`;
-  return { svg, w: w + 3, h: h + 3 };
 }
 
 const unesc = (s) => s.replace(/&(lt|gt|quot|apos|amp);/g, (_, k) => ({ lt: "<", gt: ">", quot: '"', apos: "'", amp: "&" })[k]);
