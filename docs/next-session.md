@@ -1,7 +1,8 @@
 > Update at the end of any session that changed state. Keep it lean.
 
 Continue work on the **GitHub profile** (repo `vincentwesley/vincentwesley`, folder `vincentwesley-profile`, shows at github.com/vincentwesley once the repo is public).
-Handover 2026-11-20. The rebuild is done and pushed to main. Tests pass (14), two builds in a row are byte-identical, and the pre-public check passes. The repo is still **private** until the owner flips it.
+Handover 2026-11-20. The rebuild is done and pushed to main. Tests pass (14), two builds in a row are byte-identical, and the pre-public check passes. The repo is **public** and the profile renders live; the dark/light swap is verified on github.com.
+Profile fields (owner's choice): name `Vincent Wesley`, bio `Software Engineer`, no company, location `Singapore`, website `https://vwesley.dev`.
 
 ## Before anything
 1. `git pull`. The weekly Action commits `chore: refresh profile data [skip ci]`.
@@ -27,6 +28,6 @@ Handover 2026-11-20. The rebuild is done and pushed to main. Tests pass (14), tw
 2. Card body text is about 9–10px at 375px; the titles and the real links under each card carry mobile.
 3. llm-microscope belongs in the pins and featured cards once its Pages site is deployed.
 4. The URL allow-list accepts any `*.pages.dev`. It could be narrowed to exact hosts.
-5. On github.com, check that the `<picture>` swap follows the GitHub theme. The GitHub mobile app may always show the light variant.
+5. The GitHub mobile app may always show the light variant (unverified).
 
 Report outcomes only. Owner steps go last.

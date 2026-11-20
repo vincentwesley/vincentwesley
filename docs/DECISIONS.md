@@ -54,7 +54,7 @@ MetaLens is an engineering showcase (a data pipeline and a dashboard), so it sta
 
 **P17. Profile fields.**
 - The gh token has no `user` scope, so the name, bio, location and website are owner steps.
-- The values are in `docs/next-session.md`.
+- The values are in `docs/next-session.md`. The owner chose to keep the legal name `Vincent Wesley` as the display name, with the bio `Software Engineer` and no company field (2026-11-20). That overrides the "Vin" suggestion.
 
 **P14. Email.**
 The approved public address belongs to the personal side, so there's no email button. Contact goes through vwesley.dev.
