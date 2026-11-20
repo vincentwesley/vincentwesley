@@ -1,13 +1,13 @@
-// Gallery tile (400x289; `wide`: 840x442, full-width card): 16:9 screenshot on top, slim surface band with title + tagline. Clean: no dot grid, no chips.
+// Gallery tile (400x289): 16:9 screenshot on top, slim surface band with title + tagline. Clean: no dot grid, no chips.
 import { THEMES, esc, frame, rect, svgDoc } from "../lib/svg.mjs";
 import { measure } from "../lib/fonts.mjs";
 
 const BAND = 64, PAD = 18;
 
-/** data: {name, title, tag, shotHref (data: URI), wide?} */
+/** data: {title, tag, shotHref (data: URI)} */
 export default async function tile(t, data) {
-  const c = THEMES[t], wide = data.wide === true;
-  const W = wide ? 840 : 400, SHOT_H = wide ? 378 : 225, H = SHOT_H + BAND, MAXW = W - 2 * PAD, TAG = wide ? 20 : 19, TITLE = wide ? 30 : 28;
+  const c = THEMES[t];
+  const W = 400, SHOT_H = 225, H = SHOT_H + BAND, MAXW = W - 2 * PAD, TAG = 19, TITLE = 28;
   const tw = await measure(data.tag, { family: "Inter", weight: 400, size: TAG });
   const tagSize = Math.min(TAG, Math.floor((TAG * MAXW * 10) / Math.max(tw, 1)) / 10); // shrink a long tagline instead of clipping it
   const defs = `<clipPath id="tl-img"><rect x="2" y="2" width="${W - 4}" height="${SHOT_H - 2}"/></clipPath>`;

@@ -4,6 +4,7 @@ import { mdEsc, safeUrl, replaceBlock, parseProjects, pickNow, isShown, linkOf }
 import { PROJECTS, MORE, SITE } from "./projects.mjs";
 import intro from "./art/intro.mjs";
 import tile from "./art/tile.mjs";
+import site from "./art/site.mjs";
 
 test("mdEsc escapes markdown metacharacters", () => {
   assert.equal(mdEsc("a[b](c)<d>`e`*f*_g_|h"), "a\\[b\\]\\(c\\)\\<d\\>\\`e\\`\\*f\\*\\_g\\_\\|h");
@@ -73,12 +74,17 @@ test("gallery: the 6 pinned projects in order, social for all, none shown withou
   assert.equal(linkOf(new Map(), PROJECTS[0]), "https://github.com/vincentwesley/black-hole");
 });
 
-test("site section: own constant, always links to vwesley.dev, wide tile renders without DevPulse", async () => {
+test("site section: own constant, always links to vwesley.dev, brand card renders both themes without DevPulse", async () => {
   assert.equal(SITE.link, "https://vwesley.dev");
   assert.ok(!JSON.stringify(SITE).includes("github.com"));
-  assert.equal(`${SITE.title}: ${SITE.line}`, "vwesley.dev: my portfolio site, with every project, my résumé and how to reach me");
-  const svg = await tile("dark", { title: SITE.title, tag: SITE.tag, shotHref: "data:image/webp;base64,AAAA", wide: true });
-  assert.ok(svg.includes('viewBox="0 0 840 442"') && !/<text\b/.test(svg));
+  for (const t of ["dark", "light"]) {
+    const svg = await site(t, SITE);
+    assert.ok(svg.includes('viewBox="0 0 840 340"') && !/<text\b/.test(svg), `${t}: size or text not outlined`);
+    for (const hex of ["#4DE3A6", "#4FC096", "#529B85", "#548079", "#557072", "#556A6F"]) assert.ok(svg.includes(`stop-color="${hex}"`), `${t}: missing ${hex}`);
+    assert.ok(!svg.includes("oklch") && !svg.includes("@property"));
+    assert.ok(svg.includes(`fill:${t === "dark" ? "#ffffff" : "#333333"}`));
+    assert.ok(svg.includes("<title id=\"site-t\">Vin’s Atelier · vwesley.dev</title>"));
+  }
 });
 
 test("pickNow: most recent push wins; unlisted and archived repos are ignored", () => {

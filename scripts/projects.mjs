@@ -2,7 +2,7 @@
 export const OWNER = "vincentwesley";
 
 // vwesley.dev has its own full-width section (not in DevPulse: always shown, always links to `link`, never a repo).
-export const SITE = { name: "vwesley.dev", link: "https://vwesley.dev", title: "vwesley.dev", tag: "Projects, experience, résumé and contact, all in one place", line: "my portfolio site, with every project, my résumé and how to reach me", shotFile: "assets/shots-src/vwesley.webp" };
+export const SITE = { name: "site", link: "https://vwesley.dev", title: "vwesley.dev", tag: "Projects, experience, résumé and contact, all in one place", alt: "Vin’s Atelier: visit vwesley.dev for projects, experience, résumé and contact" };
 
 // Gallery order (3 rows of 2, the 6 pinned projects). `tag`: tile tagline (<= 34 chars). `focus`: sharp gravity for the 16:9 crop (default centre).
 // README list order. `social`, `note` and `shotFile` feed only scripts/art/social.mjs (shots: assets/shots-src, else qa-output/<name>.webp).

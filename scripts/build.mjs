@@ -9,6 +9,7 @@ import { esc } from "./lib/svg.mjs";
 import { PROJECTS, MORE, OWNER, SITE } from "./projects.mjs";
 import intro from "./art/intro.mjs";
 import tile from "./art/tile.mjs";
+import site from "./art/site.mjs";
 
 const ROOT = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const DEVPULSE = "https://devpulse.vwesley.workers.dev";
@@ -78,7 +79,7 @@ async function shotFetch(path) {
   return buf;
 }
 
-/** Crop at 2x tile width (16:9; the wide site card is 2x its 840x378 shot area). `focus` is a sharp gravity name. */
+/** Crop at 2x tile width (16:9).`focus` is a sharp gravity name. */
 async function shotWebp(buf, focus = "centre", w = 800, h = 450) {
   const sharp = (await import("sharp")).default;
   return sharp(buf).resize({ width: w, height: h, fit: "cover", position: focus }).webp({ quality: 72 }).toBuffer();
@@ -120,7 +121,7 @@ const nbsp = (s) => s.replace(/ /g, "&nbsp;");
 function blocks(by) {
   const b = {};
   b.intro = pic("intro", "Hi, I’m Vin, a software engineer in Singapore. I make small, fast web apps that run in your browser. Vin’s Atelier.", "https://vwesley.dev");
-  b.site = pic(`tiles/${SITE.name}`, `${SITE.title}: ${SITE.line}`, SITE.link); // not in DevPulse: always shown, full width
+  b.site = pic(SITE.name, SITE.alt, SITE.link); // not in DevPulse: always shown, full width
   const tiles = PROJECTS.filter((m) => isShown(by, m)).map((m) => pic(`tiles/${m.name}`, `${m.title}: ${m.line}`, linkOf(by, m), "49.3%")); // 2 x 49.3% + the joining space still fits one row at 375px, and sits ~4px inside the banner at 1280
   const now = pickNow(by, [...PROJECTS, ...MORE]);
   b.now = now ? `**Now:** working on [${mdEsc(now.title)}](${linkOf(by, now)})${now.line ? `, ${now.line}` : ""}.` : null;
@@ -138,8 +139,7 @@ async function main() {
 
   const writes = new Map(); // committed code: a render failure is a bug, fail loudly
   for (const t of ["dark", "light"]) writes.set(`assets/intro-${t}.svg`, await intro(t));
-  const siteShot = `data:image/webp;base64,${(await shotWebp(readFileSync(resolve(ROOT, SITE.shotFile)), "centre", 1680, 756)).toString("base64")}`;
-  for (const t of ["dark", "light"]) writes.set(`assets/tiles/${SITE.name}-${t}.svg`, await tile(t, { title: SITE.title, tag: SITE.tag, shotHref: siteShot, wide: true }));
+  for (const t of ["dark", "light"]) writes.set(`assets/${SITE.name}-${t}.svg`, await site(t, SITE));
   for (const m of PROJECTS) {
     if (!isShown(by, m)) continue;
     const buf = shots.get(m.name) ?? readFileSync(resolve(ROOT, `assets/shots/${m.name}.webp`));

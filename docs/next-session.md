@@ -6,20 +6,20 @@ Profile fields (owner's choice): name `Vincent Wesley`, bio `Software Engineer`,
 
 ## Before anything
 1. `git pull`. The weekly Action commits `chore: refresh profile data [skip ci]`.
-2. Read `docs/DECISIONS.md` (P1–P21) and skim `docs/RESEARCH.md`.
+2. Read `docs/DECISIONS.md` (P1–P23) and skim `docs/RESEARCH.md`.
 3. Never edit `assets/brand/*`. They are byte-exact copies of `_house/brand/svg`, all rights reserved (`NOTICE.md`).
 
 ## How to work here
-- `npm test` runs unit tests. `node scripts/build.mjs` regenerates `assets/intro-*.svg`, `assets/tiles/*.svg`, `assets/shots/*.webp` and the README GEN blocks (intro, now, built, also). It only calls DevPulse, so it needs no token.
+- `npm test` runs unit tests. `node scripts/build.mjs` regenerates `assets/intro-*.svg`, `assets/site-*.svg`, `assets/tiles/*.svg`, `assets/shots/*.webp` and the README GEN blocks (intro, now, built, also). It only calls DevPulse, so it needs no token.
 - `node scripts/qa.mjs` renders through GitHub's markdown API (needs `gh` auth) and saves headless screenshots to `qa-output/{dark,light}-{1280,375}.png`. Add `--links` to check links.
-- Art lives in `scripts/art/*.mjs`: `intro.mjs` (banner, previews itself), `tile.mjs` (gallery tile) and `social.mjs` (renders `assets/social/*.png` from `assets/shots-src`; not part of the build).
+- Art lives in `scripts/art/*.mjs`: `intro.mjs` (banner, previews itself), `tile.mjs` (gallery tile), `site.mjs` (vwesley.dev brand card) and `social.mjs` (renders `assets/social/*.png` from `assets/shots-src`; not part of the build).
 - Project copy lives in `scripts/projects.mjs`. Live data comes from DevPulse `/api/projects`.
 - All text in the SVGs is outlined to paths, so no fonts load at view time. Static frames are the final state, which covers reduced motion.
 - `.gitattributes` forces LF. Keep it, or the embedded logo bytes drift between machines.
 - Workflow `build-profile.yml` runs on Mondays, on manual dispatch, and on pushes to `scripts/**`. Actions are free once the repo is public.
 
 ## Current state
-- Sections (P22): credits-card banner, nav row (6 links), two-line intro, generated "Now" line (GEN:now), "My website" (GEN:site, one full-width card from `SITE`), "Things I’ve built" (the 6 pinned projects, 3 rows x 2 tiles with a Live pill), an "Also:" line, centred Atelier logo + small print.
+- Sections (P23): credits-card banner, nav row (6 links), two-line intro, generated "Now" line (GEN:now), "My website" (GEN:site, brand card `art/site.mjs`: logo morph played once, long form when static), "Things I’ve built" (the 6 pinned projects, 3 rows x 2 tiles with a Live pill), an "Also:" line, centred Atelier logo + small print.
 - Repo descriptions, topics and homepages are set on 16 public repos (`docs/repo-surface.md`).
 - The 6 social previews are in `assets/social/`, waiting for the owner to upload them.
 

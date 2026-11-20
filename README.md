@@ -13,7 +13,7 @@ I build web apps, data tools and real-time browser graphics, mostly with TypeScr
 ### My website
 
 <!-- GEN:site:START -->
-<a href="https://vwesley.dev"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/tiles/vwesley.dev-dark.svg?v=59c69cea"><source media="(prefers-color-scheme: light)" srcset="assets/tiles/vwesley.dev-light.svg?v=ab1ad1bb"><img src="assets/tiles/vwesley.dev-dark.svg?v=59c69cea" alt="vwesley.dev: my portfolio site, with every project, my résumé and how to reach me" width="100%"></picture></a>
+<a href="https://vwesley.dev"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/site-dark.svg?v=aed36fb6"><source media="(prefers-color-scheme: light)" srcset="assets/site-light.svg?v=b90d4c13"><img src="assets/site-dark.svg?v=aed36fb6" alt="Vin’s Atelier: visit vwesley.dev for projects, experience, résumé and contact" width="100%"></picture></a>
 <!-- GEN:site:END -->
 
 ### Things I’ve built
@@ -31,7 +31,5 @@ Also: [Synthwave&nbsp;Drive](https://vincentwesley.github.io/synthwave-drive/) �
 <!-- GEN:also:END -->
 
 <br>
-
-<p align="center"><a href="https://vwesley.dev"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/brand/atelier-b.svg"><source media="(prefers-color-scheme: light)" srcset="assets/brand/atelier-a.svg"><img src="assets/brand/atelier-b.svg" alt="Vin’s Atelier" height="44"></picture></a></p>
 
 <p align="center"><sub>MetaLens VGC is a fan project, not affiliated with Nintendo, Game Freak or The Pokémon Company. Logo by Portus Workstation (<a href="https://www.instagram.com/portus_workstation/">@portus_workstation</a> / <a href="https://www.instagram.com/wason25_pz/">@wason25_pz</a>), all rights reserved, see <a href="NOTICE.md">NOTICE.md</a>. Copyright 2026 Vin’s Atelier. Designed and built by Vin. Code <a href="LICENSE">MIT</a>, provided as is.</sub></p>

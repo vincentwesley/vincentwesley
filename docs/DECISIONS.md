@@ -73,3 +73,6 @@ The "Now" line is the most recently pushed project among PROJECTS and MORE (`pic
 
 **P22. vwesley.dev gets its own section; gallery = the 6 pinned projects (owner, 2026-11-20).**
 `### My website` sits between the Now line and the gallery: one full-width card (`tile.mjs` `wide`: 840x442, same frame and 64px band) linking to https://vwesley.dev, configured in `SITE` (not in DevPulse, always shown, no repo). The gallery is Black Hole, SDF Forge, MetaLens VGC, safe-regex, Glass Compiler, SG Time Machine (3 rows x 2), matching the pins; the nav row keeps "Website". Supersedes the P21 site tile.
+
+**P24. One logo on the page.**
+The vwesley.dev brand card carries the </Atelier> logo, so the footer logo is removed. The small print keeps the artist credit.
