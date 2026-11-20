@@ -2,7 +2,7 @@
 
 Continue work on the **GitHub profile** (repo `vincentwesley/vincentwesley`, folder `vincentwesley-profile`, shows at github.com/vincentwesley once the repo is public).
 Handover 2026-11-20. The rebuild is done and pushed to main. Tests pass (14), two builds in a row are byte-identical, and the pre-public check passes. The repo is **public** and the profile renders live; the dark/light swap is verified on github.com.
-Profile fields (owner's choice): name `Vincent Wesley`, bio `Software Engineer`, no company, location `Singapore`, website `https://vwesley.dev`.
+Profile fields: the owner keeps the current name, bio and avatar as they are (2026-11-20). Don't suggest changing them.
 
 ## Before anything
 1. `git pull`. The weekly Action commits `chore: refresh profile data [skip ci]`.
@@ -22,7 +22,7 @@ Profile fields (owner's choice): name `Vincent Wesley`, bio `Software Engineer`,
 ## Current state
 - Sections (P23): credits-card banner, nav row (6 links), two-line intro, generated "Now" line (GEN:now), "My website" (GEN:site, brand card `art/site.mjs`: logo morph played once, long form when static), "Things I’ve built" (the 6 pinned projects, 3 rows x 2 tiles with a Live pill), an "Also:" line, centred Atelier logo + small print.
 - Repo descriptions, topics and homepages are set on 16 public repos (`docs/repo-surface.md`).
-- The 6 social previews are in `assets/social/`, waiting for the owner to upload them.
+- The owner will hand-pick the pins and upload the social previews (`assets/social/`) later. If the chosen pins differ from the gallery, offer to align `PROJECTS` in `scripts/projects.mjs` (and `social.mjs`) with them.
 
 ## Known gaps / ideas
 1. llm-microscope belongs in the pins and list once its Pages site is deployed (add to `PROJECTS`; add its host to the allow-list in `build.mjs`).
