@@ -7,7 +7,7 @@
 I build web apps, data tools and real-time browser graphics, mostly with TypeScript, WebGL and Cloudflare.<br>I run **Vin’s Atelier**, my one-person studio: everything below is designed, built and kept running by me.
 
 <!-- GEN:now:START -->
-**Now:** working on [DevPulse](https://devpulse.vwesley.workers.dev/), a live status board for all my projects.
+**Now:** working on [SDF Forge](https://vincentwesley.github.io/sdf-forge/), build 3D shapes from nodes, then 3D-print them.
 <!-- GEN:now:END -->
 
 ### My website
@@ -19,15 +19,22 @@ I build web apps, data tools and real-time browser graphics, mostly with TypeScr
 ### Things I’ve built
 
 <!-- GEN:built:START -->
-<p align="center"><a href="https://vincentwesley.github.io/black-hole/"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/tiles/black-hole-dark.svg?v=5835a0fb"><source media="(prefers-color-scheme: light)" srcset="assets/tiles/black-hole-light.svg?v=28597037"><img src="assets/tiles/black-hole-dark.svg?v=5835a0fb" alt="Black Hole: fly around a real-time black hole in your browser" width="49.3%"></picture></a> <a href="https://vincentwesley.github.io/sdf-forge/"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/tiles/sdf-forge-dark.svg?v=fc0cbaa9"><source media="(prefers-color-scheme: light)" srcset="assets/tiles/sdf-forge-light.svg?v=6635063a"><img src="assets/tiles/sdf-forge-dark.svg?v=fc0cbaa9" alt="SDF Forge: build 3D shapes from nodes, then 3D-print them" width="49.3%"></picture></a></p>
+<p align="center"><a href="https://vincentwesley.github.io/black-hole/"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/tiles/black-hole-dark.svg?v=6efd1fdd"><source media="(prefers-color-scheme: light)" srcset="assets/tiles/black-hole-light.svg?v=7234baff"><img src="assets/tiles/black-hole-dark.svg?v=6efd1fdd" alt="Black Hole: fly around a real-time black hole in your browser" width="49.3%"></picture></a> <a href="https://vincentwesley.github.io/sdf-forge/"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/tiles/sdf-forge-dark.svg?v=7f00a1a6"><source media="(prefers-color-scheme: light)" srcset="assets/tiles/sdf-forge-light.svg?v=af7c229a"><img src="assets/tiles/sdf-forge-dark.svg?v=7f00a1a6" alt="SDF Forge: build 3D shapes from nodes, then 3D-print them" width="49.3%"></picture></a></p>
 
-<p align="center"><a href="https://metalensvgc.pages.dev/"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/tiles/MetaLensVGC-dark.svg?v=cbbf8f51"><source media="(prefers-color-scheme: light)" srcset="assets/tiles/MetaLensVGC-light.svg?v=80834ebb"><img src="assets/tiles/MetaLensVGC-dark.svg?v=cbbf8f51" alt="MetaLens VGC: Pokémon VGC metagame stats from real tournament data" width="49.3%"></picture></a> <a href="https://vincentwesley.github.io/safe-regex/"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/tiles/safe-regex-dark.svg?v=7886850b"><source media="(prefers-color-scheme: light)" srcset="assets/tiles/safe-regex-light.svg?v=5c720cdc"><img src="assets/tiles/safe-regex-dark.svg?v=7886850b" alt="safe-regex: a JavaScript regex engine that can’t hang" width="49.3%"></picture></a></p>
+<p align="center"><a href="https://metalensvgc.pages.dev/"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/tiles/MetaLensVGC-dark.svg?v=9bc97fe8"><source media="(prefers-color-scheme: light)" srcset="assets/tiles/MetaLensVGC-light.svg?v=cd777eba"><img src="assets/tiles/MetaLensVGC-dark.svg?v=9bc97fe8" alt="MetaLens VGC: Pokémon VGC metagame stats from real tournament data" width="49.3%"></picture></a> <a href="https://vincentwesley.github.io/safe-regex/"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/tiles/safe-regex-dark.svg?v=16eb5023"><source media="(prefers-color-scheme: light)" srcset="assets/tiles/safe-regex-light.svg?v=1fa3fde2"><img src="assets/tiles/safe-regex-dark.svg?v=16eb5023" alt="safe-regex: a JavaScript regex engine that can’t hang" width="49.3%"></picture></a></p>
 
-<p align="center"><a href="https://vincentwesley.github.io/glass-compiler/"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/tiles/glass-compiler-dark.svg?v=1420566a"><source media="(prefers-color-scheme: light)" srcset="assets/tiles/glass-compiler-light.svg?v=4d9e38f3"><img src="assets/tiles/glass-compiler-dark.svg?v=1420566a" alt="Glass Compiler: a compiler you can see through, stage by stage" width="49.3%"></picture></a> <a href="https://vincentwesley.github.io/sg-time-machine/"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/tiles/sg-time-machine-dark.svg?v=7da58721"><source media="(prefers-color-scheme: light)" srcset="assets/tiles/sg-time-machine-light.svg?v=b99ff4dd"><img src="assets/tiles/sg-time-machine-dark.svg?v=7da58721" alt="SG Time Machine: Singapore’s live open data, archived on a time slider" width="49.3%"></picture></a></p>
+<p align="center"><a href="https://vincentwesley.github.io/glass-compiler/"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/tiles/glass-compiler-dark.svg?v=74c4442d"><source media="(prefers-color-scheme: light)" srcset="assets/tiles/glass-compiler-light.svg?v=e1f462bf"><img src="assets/tiles/glass-compiler-dark.svg?v=74c4442d" alt="Glass Compiler: a compiler you can see through, stage by stage" width="49.3%"></picture></a> <a href="https://vincentwesley.github.io/sg-time-machine/"><picture><source media="(prefers-color-scheme: dark)" srcset="assets/tiles/sg-time-machine-dark.svg?v=2fd6c3d8"><source media="(prefers-color-scheme: light)" srcset="assets/tiles/sg-time-machine-light.svg?v=fad17ed8"><img src="assets/tiles/sg-time-machine-dark.svg?v=2fd6c3d8" alt="SG Time Machine: Singapore’s live open data, archived on a time slider" width="49.3%"></picture></a></p>
 <!-- GEN:built:END -->
 
+### More projects
+
 <!-- GEN:also:START -->
-Also: [Synthwave&nbsp;Drive](https://vincentwesley.github.io/synthwave-drive/) · [Koi&nbsp;Pond](https://vincentwesley.github.io/koi-pond/) · [LLM&nbsp;Microscope](https://github.com/vincentwesley/llm-microscope) · [DevPulse](https://devpulse.vwesley.workers.dev/) · [TL;DR&nbsp;Panel](https://github.com/vincentwesley/tldr-panel) · [Clearslip](https://github.com/vincentwesley/clearslip)
+- **[Synthwave Drive](https://vincentwesley.github.io/synthwave-drive/)**: an endless neon road that moves to the beat of any song
+- **[Koi Pond](https://vincentwesley.github.io/koi-pond/)**: a WebGL koi pond with ripples you make yourself
+- **[LLM Microscope](https://github.com/vincentwesley/llm-microscope)**: GPT-2 running in your browser, with its attention on show
+- **[DevPulse](https://devpulse.vwesley.workers.dev/)**: a live status board for all my projects
+- **[TL;DR Panel](https://github.com/vincentwesley/tldr-panel)**: a Chrome extension that summarises any page on your device
+- **[Clearslip](https://github.com/vincentwesley/clearslip)**: a Chrome ad blocker that shows you what it blocked
 <!-- GEN:also:END -->
 
 <br>

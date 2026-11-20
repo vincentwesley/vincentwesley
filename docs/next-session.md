@@ -20,13 +20,12 @@ Profile fields: the owner keeps the current name, bio and avatar as they are (20
 - Workflow `build-profile.yml` runs on Mondays, on manual dispatch, and on pushes to `scripts/**`. Actions are free once the repo is public.
 
 ## Current state
-- Sections (P23): credits-card banner, nav row (6 links), two-line intro, generated "Now" line (GEN:now), "My website" (GEN:site, brand card `art/site.mjs`: logo morph played once, long form when static), "Things I’ve built" (the 6 pinned projects, 3 rows x 2 tiles with a Live pill), an "Also:" line, centred Atelier logo + small print.
+- Sections (P23): credits-card banner, nav row (6 links), two-line intro, generated "Now" line (GEN:now), "My website" (GEN:site, brand card `art/site.mjs`: logo morph played once, long form when static), "Things I’ve built" (the 6 pinned projects, 3 rows x 2 tiles, caption type sized for ~170px-wide phone tiles), "More projects" (GEN:also, one line each from `MORE[].line`), small print.
 - Repo descriptions, topics and homepages are set on 16 public repos (`docs/repo-surface.md`).
 - The owner will hand-pick the pins and upload the social previews (`assets/social/`) later. If the chosen pins differ from the gallery, offer to align `PROJECTS` in `scripts/projects.mjs` (and `social.mjs`) with them.
 
 ## Known gaps / ideas
 1. llm-microscope belongs in the pins and list once its Pages site is deployed (add to `PROJECTS`; add its host to the allow-list in `build.mjs`).
 2. The GitHub mobile app may always show the light variant (unverified).
-3. The committed `assets/social/*.png` predate the new captures; rerun `node scripts/art/social.mjs` if the owner wants them refreshed.
 
 Report outcomes only. Owner steps go last.

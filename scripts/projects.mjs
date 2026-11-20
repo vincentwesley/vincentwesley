@@ -19,12 +19,12 @@ export const PROJECTS = [
   { name: "sg-time-machine", title: "SG Time Machine", tag: "Singapore’s data on a time slider", line: "Singapore’s live open data, archived on a time slider", social: { line: "A growing archive of Singapore's live open-data feeds, browsable on a time-slider map.", chips: ["Open data", "MapLibre", "Singapore"] } },
 ];
 
-// One plain text line under the gallery (live link if up, else the repo).
+// Short list under the gallery, one line each (live link if up, else the repo). `line` also feeds the "Now" sentence.
 export const MORE = [
-  { name: "synthwave-drive", title: "Synthwave Drive" },
-  { name: "koi-pond", title: "Koi Pond" },
-  { name: "llm-microscope", title: "LLM Microscope" },
+  { name: "synthwave-drive", title: "Synthwave Drive", line: "an endless neon road that moves to the beat of any song" },
+  { name: "koi-pond", title: "Koi Pond", line: "a WebGL koi pond with ripples you make yourself" },
+  { name: "llm-microscope", title: "LLM Microscope", line: "GPT-2 running in your browser, with its attention on show" },
   { name: "devpulse", title: "DevPulse", line: "a live status board for all my projects" },
-  { name: "tldr-panel", title: "TL;DR Panel" },
-  { name: "clearslip", title: "Clearslip" },
+  { name: "tldr-panel", title: "TL;DR Panel", line: "a Chrome extension that summarises any page on your device" },
+  { name: "clearslip", title: "Clearslip", line: "a Chrome ad blocker that shows you what it blocked" },
 ];

@@ -96,7 +96,6 @@ const repoUrl = (n) => `https://github.com/${OWNER}/${n}`;
 export const isShown = (by, m) => by.has(m.name) && !by.get(m.name).archived;
 /** Live URL if up, else the repo. */
 export const linkOf = (by, m) => (by.get(m.name)?.up && by.get(m.name).url ? by.get(m.name).url : repoUrl(m.name));
-const nbsp = (s) => s.replace(/ /g, "&nbsp;");
 
 function blocks(by) {
   const b = {};
@@ -108,7 +107,7 @@ function blocks(by) {
   b.built = tiles.every(Boolean)
     ? Array.from({ length: Math.ceil(tiles.length / 2) }, (_, k) => `<p align="center">${tiles.slice(k * 2, k * 2 + 2).join(" ")}</p>`).join("\n\n")
     : null;
-  b.also = "Also: " + MORE.filter((m) => by.has(m.name) && !by.get(m.name).archived).map((m) => `[${nbsp(mdEsc(m.title))}](${linkOf(by, m)})`).join(" · ");
+  b.also = MORE.filter((m) => isShown(by, m)).map((m) => `- **[${mdEsc(m.title)}](${linkOf(by, m)})**: ${mdEsc(m.line)}`).join("\n");
   return b;
 }
 
