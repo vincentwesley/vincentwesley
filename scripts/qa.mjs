@@ -51,7 +51,8 @@ for (const { s, w, reduce } of shots) {
   await p.waitForLoadState("networkidle");
   await p.waitForTimeout(1500);
   // SVG-as-image rasterises once; fonts decoded late leave text blank/fallback. A reload hits the warm cache.
-  await p.reload(); await p.waitForLoadState("networkidle"); await p.waitForTimeout(1500);
+  // The banner/site logo morph is one-shot and ends ~3s after load, so wait past it for the settled state.
+  await p.reload(); await p.waitForLoadState("networkidle"); await p.waitForTimeout(4500);
   await p.screenshot({ path: join(out, `${s}-${w}${reduce ? "-reduced" : ""}.png`), fullPage: true });
   await ctx.close();
 }

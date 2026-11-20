@@ -6,13 +6,14 @@ Profile fields (owner's choice): name `Vincent Wesley`, bio `Software Engineer`,
 
 ## Before anything
 1. `git pull`. The weekly Action commits `chore: refresh profile data [skip ci]`.
-2. Read `docs/DECISIONS.md` (P1–P23) and skim `docs/RESEARCH.md`.
+2. Read `docs/DECISIONS.md` (P1–P25) and skim `docs/RESEARCH.md`.
 3. Never edit `assets/brand/*`. They are byte-exact copies of `_house/brand/svg`, all rights reserved (`NOTICE.md`).
 
 ## How to work here
-- `npm test` runs unit tests. `node scripts/build.mjs` regenerates `assets/intro-*.svg`, `assets/site-*.svg`, `assets/tiles/*.svg`, `assets/shots/*.webp` and the README GEN blocks (intro, now, built, also). It only calls DevPulse, so it needs no token.
+- `npm test` runs unit tests. `node scripts/build.mjs` regenerates `assets/intro-*.svg`, `assets/site-*.svg`, `assets/tiles/*.svg`, and the README GEN blocks (intro, now, built, also). It only calls DevPulse (live/up, links), so it needs no token. Tile screenshots are committed captures, not downloaded.
+- **Refresh screenshots** (manual, local, never CI): `node scripts/art/capture.mjs [name ...]` captures each project's live site in dark and light at 1600x900 into `assets/shots-src/<name>-{dark,light}.webp` (per-site theme keys and dialog dismissals are in its `TARGETS`; Black Hole's scene is dark by nature, only its UI turns light). Then run `node scripts/build.mjs`.
 - `node scripts/qa.mjs` renders through GitHub's markdown API (needs `gh` auth) and saves headless screenshots to `qa-output/{dark,light}-{1280,375}.png`. Add `--links` to check links.
-- Art lives in `scripts/art/*.mjs`: `intro.mjs` (banner, previews itself), `tile.mjs` (gallery tile), `site.mjs` (vwesley.dev brand card) and `social.mjs` (renders `assets/social/*.png` from `assets/shots-src`; not part of the build).
+- Art lives in `scripts/art/*.mjs`: `intro.mjs` (banner, previews itself), `tile.mjs` (gallery tile), `site.mjs` (vwesley.dev brand card) and `social.mjs` (renders `assets/social/*.png` from `assets/shots-src`; not part of the build; uses the dark captures).
 - Project copy lives in `scripts/projects.mjs`. Live data comes from DevPulse `/api/projects`.
 - All text in the SVGs is outlined to paths, so no fonts load at view time. Static frames are the final state, which covers reduced motion.
 - `.gitattributes` forces LF. Keep it, or the embedded logo bytes drift between machines.
@@ -26,6 +27,6 @@ Profile fields (owner's choice): name `Vincent Wesley`, bio `Software Engineer`,
 ## Known gaps / ideas
 1. llm-microscope belongs in the pins and list once its Pages site is deployed (add to `PROJECTS`; add its host to the allow-list in `build.mjs`).
 2. The GitHub mobile app may always show the light variant (unverified).
-3. `social.mjs` is not byte-reproducible (sg-time-machine and glass-compiler read gitignored `qa-output/*.webp`); the committed PNGs are the HEAD ones.
+3. The committed `assets/social/*.png` predate the new captures; rerun `node scripts/art/social.mjs` if the owner wants them refreshed.
 
 Report outcomes only. Owner steps go last.

@@ -1,6 +1,6 @@
 // 1280x640 social-preview PNGs for the pinned repos. Run: node scripts/art/social.mjs [repo...]
 // Writes assets/social/<repo>.png (GitHub has no API for these; they are uploaded by hand).
-import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { writeFileSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
 import { THEMES, esc, frame, fireflies, chip, svgDoc, embedImage, rect, wrapText } from "../lib/svg.mjs";
@@ -14,13 +14,13 @@ const COLX = 64, COLW = 480, FX = 584, FY = 128, FW = 664, FH = 384; // shot fra
 // Social copy lives next to the project copy (projects.mjs); only projects with a `social` field get a PNG.
 const REPOS = Object.fromEntries(PROJECTS.filter((p) => p.social).map((p) => [p.name, {
   title: p.title, line: p.social.line, chips: p.social.chips, note: p.note,
-  shot: abs(p.shotFile ?? `qa-output/${p.name}.webp`),
+  shot: abs(`assets/shots-src/${p.name}-dark.webp`),
 }]));
 
 const logo = embedImage(abs("assets/brand/mark-b.svg"), "image/svg+xml");
 
 async function render(repo, d) {
-  const shot = d.shot.includes("shots-src") ? await sharp(d.shot).resize({ width: 840, withoutEnlargement: true }).webp({ quality: 72 }).toBuffer() : readFileSync(d.shot);
+  const shot = await sharp(d.shot).resize({ width: 840, withoutEnlargement: true }).webp({ quality: 72 }).toBuffer();
   const T = { family: "Space Grotesk", weight: 700 };
   let ts = 64;
   while ((await measure(d.title, { ...T, size: ts })) > COLW) ts -= 2;

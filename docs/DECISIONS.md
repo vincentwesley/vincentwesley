@@ -76,3 +76,6 @@ The "Now" line is the most recently pushed project among PROJECTS and MORE (`pic
 
 **P24. One logo on the page.**
 The vwesley.dev brand card carries the </Atelier> logo, so the footer logo is removed. The small print keeps the artist credit.
+
+**P25. Theme-matched screenshots, captured locally; DevPulse screenshots dropped.**
+The dark tile embeds a dark-mode capture and the light tile a light-mode one (`assets/shots-src/<name>-{dark,light}.webp`, 1600x900). They are made by hand with `node scripts/art/capture.mjs` (playwright, local only, never CI) by forcing each site's own theme key, then sharp-cropped to 800x450 by the build. DevPulse stays for live/up and links only; its screenshot download, `shotFile` and `assets/shots/` are gone. `social.mjs` uses the dark captures.

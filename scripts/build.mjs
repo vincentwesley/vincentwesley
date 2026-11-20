@@ -1,4 +1,4 @@
-// Profile build: DevPulse -> assets/intro-*.svg, assets/tiles/*.svg, assets/shots/*.webp + README GEN blocks.
+// Profile build: DevPulse (live/up, links) + committed captures (assets/shots-src, refresh: scripts/art/capture.mjs) -> assets/intro-*.svg, assets/tiles/*.svg, README GEN blocks.
 // Fail safe: any fetch/parse problem (network data only) keeps every committed file as-is and exits 0.
 // Deterministic: no timestamps; same inputs give identical bytes.
 import { createHash } from "node:crypto";
@@ -14,7 +14,6 @@ import site from "./art/site.mjs";
 const ROOT = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const DEVPULSE = "https://devpulse.vwesley.workers.dev";
 const NAME_RE = /^[A-Za-z0-9._-]{1,100}$/;
-const SHOT_RE = /^\/shot\/[A-Za-z0-9._-]+\.(?:jpg|jpeg|png|webp)(?:\?v=[A-Za-z0-9]{1,20})?$/;
 const HOSTS = new Set(["vincentwesley.github.io", "metalensvgc.pages.dev", "devpulse.vwesley.workers.dev", "vwesley.dev", "github.com"]);
 
 // ---------- pure helpers (unit-tested) ----------
@@ -45,7 +44,7 @@ export function parseProjects(payload) {
     if (!p || typeof p !== "object" || typeof p.name !== "string" || !NAME_RE.test(p.name)) continue;
     if (p.repo !== `${OWNER}/${p.name}`) continue;
     const pushed = Date.parse(p.pushedAt);
-    out.push({ name: p.name, url: p.url ? safeUrl(p.url) : null, up: p.up === true, shot: typeof p.shot === "string" && SHOT_RE.test(p.shot) ? p.shot : null, archived: p.archived === true, pushed: Number.isNaN(pushed) ? 0 : pushed });
+    out.push({ name: p.name, url: p.url ? safeUrl(p.url) : null, up: p.up === true, archived: p.archived === true, pushed: Number.isNaN(pushed) ? 0 : pushed });
   }
   return out.sort((a, b) => a.name.localeCompare(b.name));
 }
@@ -71,16 +70,11 @@ function pic(name, alt, href, width = "100%") {
 }
 
 // ---------- network ----------
-async function shotFetch(path) {
-  const r = await fetch(DEVPULSE + path, { signal: AbortSignal.timeout(15000) });
-  if (!r.ok || !(r.headers.get("content-type") ?? "").startsWith("image/")) throw new Error("bad shot response");
-  const buf = Buffer.from(await r.arrayBuffer());
-  if (buf.length >= 3 * 1024 * 1024) throw new Error("shot too large");
-  return buf;
-}
+/** Committed capture (scripts/art/capture.mjs) for a project in one theme. */
+export const shotFile = (m, t) => `assets/shots-src/${m.name}-${t}.webp`;
 
 /** Crop at 2x tile width (16:9).`focus` is a sharp gravity name. */
-async function shotWebp(buf, focus = "centre", w = 800, h = 450) {
+export async function shotWebp(buf, focus = "centre", w = 800, h = 450) {
   const sharp = (await import("sharp")).default;
   return sharp(buf).resize({ width: w, height: h, fit: "cover", position: focus }).webp({ quality: 72 }).toBuffer();
 }
@@ -91,21 +85,7 @@ async function collect() {
   const projects = parseProjects(await r.json());
   if (!projects.length) throw new Error("DevPulse payload empty");
   const by = new Map(projects.map((p) => [p.name, p]));
-  const shots = new Map();
-  for (const m of PROJECTS) {
-    const file = resolve(ROOT, `assets/shots/${m.name}.webp`);
-    try {
-      if (!isShown(by, m)) throw new Error("not in DevPulse");
-      const p = by.get(m.name);
-      if (m.shotFile) shots.set(m.name, await shotWebp(readFileSync(resolve(ROOT, m.shotFile)), m.focus));
-      else if (p.shot) shots.set(m.name, await shotWebp(await shotFetch(p.shot), m.focus));
-      else throw new Error("no shot");
-    } catch (e) {
-      if (!existsSync(file)) throw new Error(`no screenshot for ${m.name}: ${e.message}`);
-      console.log(`shot ${m.name}: ${e.message}; keeping committed file`);
-    }
-  }
-  return { by, shots };
+  return { by };
 }
 
 // ---------- build ----------
@@ -133,8 +113,8 @@ function blocks(by) {
 }
 
 async function main() {
-  let by, shots;
-  try { ({ by, shots } = await collect()); }
+  let by;
+  try { ({ by } = await collect()); }
   catch (e) { console.log(`build skipped (fail safe, committed files kept): ${e.message}`); return; }
 
   const writes = new Map(); // committed code: a render failure is a bug, fail loudly
@@ -142,10 +122,10 @@ async function main() {
   for (const t of ["dark", "light"]) writes.set(`assets/${SITE.name}-${t}.svg`, await site(t, SITE));
   for (const m of PROJECTS) {
     if (!isShown(by, m)) continue;
-    const buf = shots.get(m.name) ?? readFileSync(resolve(ROOT, `assets/shots/${m.name}.webp`));
-    if (shots.has(m.name)) writes.set(`assets/shots/${m.name}.webp`, buf);
-    const shotHref = `data:image/webp;base64,${buf.toString("base64")}`;
-    for (const t of ["dark", "light"]) writes.set(`assets/tiles/${m.name}-${t}.svg`, await tile(t, { title: m.title, tag: m.tag, shotHref }));
+    for (const t of ["dark", "light"]) {
+      const buf = await shotWebp(readFileSync(resolve(ROOT, shotFile(m, t))), m.focus); // theme-matched capture: dark tile gets the dark shot
+      writes.set(`assets/tiles/${m.name}-${t}.svg`, await tile(t, { title: m.title, tag: m.tag, shotHref: `data:image/webp;base64,${buf.toString("base64")}` }));
+    }
   }
 
   // Check every README marker before touching disk, so assets and README never go out of sync.

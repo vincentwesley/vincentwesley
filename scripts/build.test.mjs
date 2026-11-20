@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mdEsc, safeUrl, replaceBlock, parseProjects, pickNow, isShown, linkOf } from "./build.mjs";
+import { existsSync, readFileSync } from "node:fs";
+import { mdEsc, safeUrl, replaceBlock, parseProjects, pickNow, isShown, linkOf, shotFile, shotWebp } from "./build.mjs";
 import { PROJECTS, MORE, SITE } from "./projects.mjs";
 import intro from "./art/intro.mjs";
 import tile from "./art/tile.mjs";
@@ -100,4 +101,15 @@ test("pickNow: most recent push wins; unlisted and archived repos are ignored", 
   assert.equal(pickNow(by, [{ name: "arch" }, { name: "missing" }]), null);
   assert.equal(parseProjects([{ name: "x", repo: "vincentwesley/x", pushedAt: "2026-11-20T00:00:00Z" }])[0].pushed, Date.parse("2026-11-20T00:00:00Z"));
   assert.equal(parseProjects([{ name: "x", repo: "vincentwesley/x", pushedAt: "junk" }])[0].pushed, 0);
+});
+
+test("dark and light tiles embed different images when both captures exist", async () => {
+  let n = 0;
+  for (const m of PROJECTS) {
+    const [d, l] = ["dark", "light"].map((t) => new URL(`../${shotFile(m, t)}`, import.meta.url));
+    if (!existsSync(d) || !existsSync(l)) continue;
+    n++;
+    assert.ok(!(await shotWebp(readFileSync(d), m.focus)).equals(await shotWebp(readFileSync(l), m.focus)), `${m.name}: same image in both themes`);
+  }
+  assert.ok(n > 0, "no captures found");
 });
