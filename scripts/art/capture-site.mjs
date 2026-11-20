@@ -1,5 +1,5 @@
 // Manual refresh of the vwesley.dev tile screenshot: `node scripts/art/capture-site.mjs [top|projects|mid]`. Never run in CI.
-// Writes assets/shots-src/vwesley.webp (1600x900 dark capture) and, for comparing variants, qa-output/vwesley-<variant>.webp.
+// Writes assets/shots-src/vwesley.webp (1600x720 dark capture, matches the wide card) and, for comparing variants, qa-output/vwesley-<variant>.webp.
 import { mkdirSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -12,7 +12,7 @@ async function capture(variant) {
   const sharp = (await import("sharp")).default;
   const browser = await chromium.launch();
   try {
-    const ctx = await browser.newContext({ viewport: { width: 1600, height: 900 }, deviceScaleFactor: 1, colorScheme: "dark", reducedMotion: "no-preference" });
+    const ctx = await browser.newContext({ viewport: { width: 1600, height: 720 }, deviceScaleFactor: 1, colorScheme: "dark", reducedMotion: "no-preference" });
     const page = await ctx.newPage();
     await page.goto(URL_, { waitUntil: "networkidle" });
     await page.getByRole("button", { name: /^(accept|reject|dismiss|close|got it)/i }).first().click({ timeout: 1000 }).catch(() => {});

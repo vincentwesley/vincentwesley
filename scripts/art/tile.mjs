@@ -1,12 +1,13 @@
-// Gallery tile (400x289): 16:9 screenshot on top, slim surface band with title + tagline. Clean: no dot grid, no chips.
+// Gallery tile (400x289; `wide`: 840x442, full-width card): 16:9 screenshot on top, slim surface band with title + tagline. Clean: no dot grid, no chips.
 import { THEMES, esc, frame, rect, svgDoc } from "../lib/svg.mjs";
 import { measure } from "../lib/fonts.mjs";
 
-const W = 400, SHOT_H = 225, BAND = 64, H = SHOT_H + BAND, PAD = 18, MAXW = W - 2 * PAD, TAG = 19;
+const BAND = 64, PAD = 18;
 
-/** data: {name, title, tag, shotHref (data: URI, 16:9)} */
+/** data: {name, title, tag, shotHref (data: URI), wide?} */
 export default async function tile(t, data) {
-  const c = THEMES[t];
+  const c = THEMES[t], wide = data.wide === true;
+  const W = wide ? 840 : 400, SHOT_H = wide ? 378 : 225, H = SHOT_H + BAND, MAXW = W - 2 * PAD, TAG = wide ? 20 : 19, TITLE = wide ? 30 : 28;
   const tw = await measure(data.tag, { family: "Inter", weight: 400, size: TAG });
   const tagSize = Math.min(TAG, Math.floor((TAG * MAXW * 10) / Math.max(tw, 1)) / 10); // shrink a long tagline instead of clipping it
   const defs = `<clipPath id="tl-img"><rect x="2" y="2" width="${W - 4}" height="${SHOT_H - 2}"/></clipPath>`;
@@ -15,7 +16,7 @@ export default async function tile(t, data) {
     `<image href="${data.shotHref}" x="2" y="2" width="${W - 4}" height="${SHOT_H - 2}" preserveAspectRatio="xMidYMid slice" clip-path="url(#tl-img)"/>` +
     rect(2, SHOT_H, W - 4, 2, c.borderStrong) +
     [[2, 2], [W - 14, 2]].map(([x, y]) => rect(x, y, 12, 12, c.borderStrong, ' class="stud"')).join("") + // top studs back over the shot
-    `<text x="${PAD}" y="${SHOT_H + 32}" font-family="'Space Grotesk'" font-weight="700" font-size="28" fill="${c.fg}">${esc(data.title)}</text>` +
+    `<text x="${PAD}" y="${SHOT_H + 32}" font-family="'Space Grotesk'" font-weight="700" font-size="${TITLE}" fill="${c.fg}">${esc(data.title)}</text>` +
     `<text x="${PAD}" y="${SHOT_H + 54}" font-family="'Inter'" font-size="${tagSize}" fill="${c.muted}">${esc(data.tag)}</text>`;
   return svgDoc({ w: W, h: H, id: "tl", title: data.title, desc: `${data.title}: ${data.tag}`, defs, body });
 }

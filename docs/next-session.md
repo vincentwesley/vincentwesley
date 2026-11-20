@@ -19,7 +19,7 @@ Profile fields (owner's choice): name `Vincent Wesley`, bio `Software Engineer`,
 - Workflow `build-profile.yml` runs on Mondays, on manual dispatch, and on pushes to `scripts/**`. Actions are free once the repo is public.
 
 ## Current state
-- Sections (P21): credits-card banner, nav row (6 links), two-line intro, generated "Now" line (GEN:now), "Things I’ve built" (3 rows x 2 image-forward tiles with a Live pill), an "Also:" line, centred Atelier logo + small print.
+- Sections (P22): credits-card banner, nav row (6 links), two-line intro, generated "Now" line (GEN:now), "My website" (GEN:site, one full-width card from `SITE`), "Things I’ve built" (the 6 pinned projects, 3 rows x 2 tiles with a Live pill), an "Also:" line, centred Atelier logo + small print.
 - Repo descriptions, topics and homepages are set on 16 public repos (`docs/repo-surface.md`).
 - The 6 social previews are in `assets/social/`, waiting for the owner to upload them.
 

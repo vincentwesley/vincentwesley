@@ -6,7 +6,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { esc } from "./lib/svg.mjs";
-import { PROJECTS, MORE, OWNER } from "./projects.mjs";
+import { PROJECTS, MORE, OWNER, SITE } from "./projects.mjs";
 import intro from "./art/intro.mjs";
 import tile from "./art/tile.mjs";
 
@@ -78,10 +78,10 @@ async function shotFetch(path) {
   return buf;
 }
 
-/** 16:9 crop at 2x tile width. `focus` is a sharp gravity name. */
-async function shotWebp(buf, focus = "centre") {
+/** Crop at 2x tile width (16:9; the wide site card is 2x its 840x378 shot area). `focus` is a sharp gravity name. */
+async function shotWebp(buf, focus = "centre", w = 800, h = 450) {
   const sharp = (await import("sharp")).default;
-  return sharp(buf).resize({ width: 800, height: 450, fit: "cover", position: focus }).webp({ quality: 72 }).toBuffer();
+  return sharp(buf).resize({ width: w, height: h, fit: "cover", position: focus }).webp({ quality: 72 }).toBuffer();
 }
 
 async function collect() {
@@ -111,15 +111,16 @@ async function collect() {
 const rd = (rel) => (existsSync(resolve(ROOT, rel)) ? readFileSync(resolve(ROOT, rel)) : null);
 const repoUrl = (n) => `https://github.com/${OWNER}/${n}`;
 
-/** Shown unless DevPulse lacks it or it is archived; `site` entries (not in DevPulse) are always shown. */
-export const isShown = (by, m) => m.site === true || (by.has(m.name) && !by.get(m.name).archived);
-/** Site entries link to their own `link`; others to the live URL if up, else the repo. */
-export const linkOf = (by, m) => (m.site ? m.link : by.get(m.name)?.up && by.get(m.name).url ? by.get(m.name).url : repoUrl(m.name));
+/** Shown unless DevPulse lacks it or it is archived. */
+export const isShown = (by, m) => by.has(m.name) && !by.get(m.name).archived;
+/** Live URL if up, else the repo. */
+export const linkOf = (by, m) => (by.get(m.name)?.up && by.get(m.name).url ? by.get(m.name).url : repoUrl(m.name));
 const nbsp = (s) => s.replace(/ /g, "&nbsp;");
 
 function blocks(by) {
   const b = {};
   b.intro = pic("intro", "Hi, I’m Vin, a software engineer in Singapore. I make small, fast web apps that run in your browser. Vin’s Atelier.", "https://vwesley.dev");
+  b.site = pic(`tiles/${SITE.name}`, `${SITE.title}: ${SITE.line}`, SITE.link); // not in DevPulse: always shown, full width
   const tiles = PROJECTS.filter((m) => isShown(by, m)).map((m) => pic(`tiles/${m.name}`, `${m.title}: ${m.line}`, linkOf(by, m), "49.3%")); // 2 x 49.3% + the joining space still fits one row at 375px, and sits ~4px inside the banner at 1280
   const now = pickNow(by, [...PROJECTS, ...MORE]);
   b.now = now ? `**Now:** working on [${mdEsc(now.title)}](${linkOf(by, now)})${now.line ? `, ${now.line}` : ""}.` : null;
@@ -137,6 +138,8 @@ async function main() {
 
   const writes = new Map(); // committed code: a render failure is a bug, fail loudly
   for (const t of ["dark", "light"]) writes.set(`assets/intro-${t}.svg`, await intro(t));
+  const siteShot = `data:image/webp;base64,${(await shotWebp(readFileSync(resolve(ROOT, SITE.shotFile)), "centre", 1680, 756)).toString("base64")}`;
+  for (const t of ["dark", "light"]) writes.set(`assets/tiles/${SITE.name}-${t}.svg`, await tile(t, { title: SITE.title, tag: SITE.tag, shotHref: siteShot, wide: true }));
   for (const m of PROJECTS) {
     if (!isShown(by, m)) continue;
     const buf = shots.get(m.name) ?? readFileSync(resolve(ROOT, `assets/shots/${m.name}.webp`));

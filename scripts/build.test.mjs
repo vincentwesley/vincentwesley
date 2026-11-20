@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mdEsc, safeUrl, replaceBlock, parseProjects, pickNow, isShown, linkOf } from "./build.mjs";
-import { PROJECTS, MORE } from "./projects.mjs";
+import { PROJECTS, MORE, SITE } from "./projects.mjs";
 import intro from "./art/intro.mjs";
 import tile from "./art/tile.mjs";
 
@@ -65,15 +65,20 @@ test("tile renders in both themes with outlined text and escapes junk", async ()
   }
 });
 
-test("gallery: site tile first, 6 tiles, shown without DevPulse, links to the site, no repo", () => {
-  assert.deepEqual(PROJECTS.map((p) => p.name), ["vwesley.dev", "black-hole", "sdf-forge", "MetaLensVGC", "safe-regex", "glass-compiler"]);
-  assert.equal(MORE[0].name, "sg-time-machine");
-  const site = PROJECTS[0], by = new Map(); // no DevPulse entry at all
-  assert.ok(isShown(by, site));
-  assert.ok(!isShown(by, PROJECTS[1]));
-  assert.equal(linkOf(by, site), "https://vwesley.dev");
-  assert.equal(`${site.title}: ${site.line}`, "vwesley.dev: my portfolio site, with every project, my résumé and how to reach me");
-  assert.ok(!JSON.stringify(site).includes("github.com"));
+test("gallery: the 6 pinned projects in order, social for all, none shown without DevPulse, not in Also", () => {
+  assert.deepEqual(PROJECTS.map((p) => p.name), ["black-hole", "sdf-forge", "MetaLensVGC", "safe-regex", "glass-compiler", "sg-time-machine"]);
+  assert.ok(PROJECTS.every((p) => p.social));
+  assert.ok(!MORE.some((m) => m.name === "sg-time-machine" || m.name === "vwesley.dev"));
+  assert.ok(PROJECTS.every((p) => !isShown(new Map(), p)));
+  assert.equal(linkOf(new Map(), PROJECTS[0]), "https://github.com/vincentwesley/black-hole");
+});
+
+test("site section: own constant, always links to vwesley.dev, wide tile renders without DevPulse", async () => {
+  assert.equal(SITE.link, "https://vwesley.dev");
+  assert.ok(!JSON.stringify(SITE).includes("github.com"));
+  assert.equal(`${SITE.title}: ${SITE.line}`, "vwesley.dev: my portfolio site, with every project, my résumé and how to reach me");
+  const svg = await tile("dark", { title: SITE.title, tag: SITE.tag, shotHref: "data:image/webp;base64,AAAA", wide: true });
+  assert.ok(svg.includes('viewBox="0 0 840 442"') && !/<text\b/.test(svg));
 });
 
 test("pickNow: most recent push wins; unlisted and archived repos are ignored", () => {
